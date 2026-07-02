@@ -70,7 +70,11 @@ public class ApplicationState
             if (RunningGame != null && RunningGame.Type != RunningGameType)
             {
                 Logger.Info($"Detected a switch to {RunningGameType}, waiting for its game data to be parsed.");
+                Installation oldGame = RunningGame;
                 RunningGame = null;
+                // Unload in the background so the forced GC doesn't
+                // stall the telemetry thread.
+                Task.Run(oldGame.ClearParsedData);
             }
 
             if (RunningGame == null && (parsingTask == null || parsingTask.IsCompleted))
@@ -376,9 +380,11 @@ public class ApplicationState
                 {
                     bool success = await Task.Run(() => install.Parse());
                     // The user might have switched games while we were parsing,
-                    // in that case don't use the now stale data.
+                    // in that case throw the now stale data away.
                     if (success && install.Type == RunningGameType)
                         RunningGame = install;
+                    else if (success)
+                        install.ClearParsedData();
                 }
             }
 
