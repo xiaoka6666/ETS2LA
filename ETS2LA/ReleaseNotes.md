@@ -12,7 +12,7 @@
 > [!WARNING]
 > If you have issues with your **overlay being fully opaque**, make sure to reinstall your graphics card drivers.  
 > **NVIDIA** - Set `OpenGL GDI Compatibility` to `Prefer Compatible` in the *NVIDIA App*.  
-> **AMD** - We've yet to find a solution, if you have information please tell us. Some GPUs work some don't...
+> **AMD** - Disable **HDR** in Windows settings.
 
 <sub>ETS2LA is version specific, make sure you use a supported version!  
 Older versions are not kept compatible with server side changes.</sub>
@@ -24,9 +24,16 @@ Older versions are not kept compatible with server side changes.</sub>
 | **1.60**      | [**≥ 3.4.0**](https://github.com/ETS2LA/Euro-Truck-Simulator-2-Lane-Assist/releases/latest) |
 | **1.59**      | [**≥ 3.2.0**](https://github.com/ETS2LA/Euro-Truck-Simulator-2-Lane-Assist/releases/latest) |
 
-<sub>If you're running your game in Proton, please install the Windows version inside the proton instance.  
-Press **_Assets_** below to download the installer.</sub>
+You can download the **latest version** from here.   
+**Don't use this if you're not on the latest game version!**
+
+[![Download ETS2LA](https://a.fsdn.com/con/app/sf-download-button)](https://sourceforge.net/projects/ets2la/files/latest/download)
+
+Or download directly from GitHub below:
 | Operating System  |      Installer File       | Additional Requirements |
 | ----------------- | ------------------------- | ----------------------- |
 | Windows           | `ETS2LA-win-*.msi`        | Included                |
 | Linux             | `ETS2LA-linux-*.AppImage` | **GLIBC 2.43**          |
+
+<sub>If you're running your game in Proton, please install the Windows version inside the proton instance.  
+Press **_Assets_** below to download the installer.</sub>
