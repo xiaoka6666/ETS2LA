@@ -23,8 +23,24 @@ public partial class DataSettingsPage : UserControl, INotifyPropertyChanged
             {
                 DataSettings.Current.ForceBaseMapName = value;
                 DataSettings.Current.Save();
-                BaseMapNameNeedsRestart = true;
+                BaseMapNameNeedsRestart = !BaseMapNameNeedsRestart;
                 OnPropertyChanged(nameof(BaseMapNameNeedsRestart));
+            }
+        }
+    }
+
+    public bool ForceMapLoadNeedsRestart { get; set; } = false;
+    public bool ForceMapLoad
+    {
+        get => DataSettings.Current.ForceMapLoad;
+        set
+        {
+            if (DataSettings.Current.ForceMapLoad != value)
+            {
+                DataSettings.Current.ForceMapLoad = value;
+                DataSettings.Current.Save();
+                ForceMapLoadNeedsRestart = !ForceMapLoadNeedsRestart;
+                OnPropertyChanged(nameof(ForceMapLoadNeedsRestart));
             }
         }
     }

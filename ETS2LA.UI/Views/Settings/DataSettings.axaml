@@ -20,6 +20,19 @@
             </StackPanel>
 
             <StackPanel Spacing="10">
+                <Grid ColumnDefinitions="*, Auto">
+                    <TextBlock Text="Force Map Load" VerticalAlignment="Center" />
+                    <ToggleSwitch Grid.Column="1" IsChecked="{Binding ForceMapLoad}" Classes="primary-toggle" AutomationProperties.Name="Force Map Load on game startup, requires restart" />
+                </Grid>
+                <TextBlock Text="Force ETS2LA to load the map on game startup. This can resolve issues where your game.log.txt file is not where ETS2LA expects it." FontSize="12" Classes="Description" />
+                <StackPanel IsVisible="{Binding ForceMapLoadNeedsRestart}">
+                    <TextBlock Text="Warning: You need to restart ETS2LA to apply this change." FontSize="12" Classes="Warning" />
+                </StackPanel>
+            </StackPanel>
+
+            <Separator />
+
+            <StackPanel Spacing="10">
                 <StackPanel Spacing="3">
                     <TextBlock Text="Data Fidelity" />
                     <TextBlock Text="Adjust the level of detail of the game data we use. Higher values use more RAM, but include more information. All levels drive the same." FontSize="12" Classes="Description" />
@@ -67,8 +80,6 @@
                     <TextBlock Text="Warning: Extreme uses significant amounts of RAM, expect over 10GB of usage." FontSize="12" Classes="Warning" />
                 </StackPanel>
             </StackPanel>
-
-            <Separator />
 
             <StackPanel Spacing="10">
                 <StackPanel Spacing="3">
