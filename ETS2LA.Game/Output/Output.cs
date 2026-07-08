@@ -67,7 +67,7 @@ public class GameOutput
         TryOpenMemory();
         // Then we start listening to events and spin up the update thread.
         Events.Current.Subscribe<ControlEvent>(EventString, OnControlEvent);
-        Task.Run(Tick);
+        Task.Factory.StartNew(Tick, TaskCreationOptions.LongRunning);
     }
 
     private void TryOpenMemory()

@@ -70,14 +70,14 @@ internal static class Program
             .Build();
 
         bool shutdown = false;
-        var AnalyticsThread = Task.Run(() =>
+        var AnalyticsThread = Task.Factory.StartNew(() =>
         {
             while (!shutdown)
             {
                 AppAnalytics.Pulse();
                 Thread.Sleep(TimeSpan.FromMinutes(1));
             }
-        });
+        }, TaskCreationOptions.LongRunning);
 
         var BackendThread = Task.Run(() =>
         {

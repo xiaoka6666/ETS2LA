@@ -49,7 +49,7 @@ public class SDL3ControlsBackend : IControlsBackend
             else
             {
                 BootstrapConnectedJoysticks();
-                _listenerTask = Task.Run(ControlListener, _cts.Token);
+                _listenerTask = Task.Factory.StartNew(ControlListener, _cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
             }
         }
         catch (Exception ex)

@@ -28,7 +28,7 @@ public class UINotificationHandler
 
     public UINotificationHandler()
     {
-        Task.Run(WatcherThread);
+        Task.Factory.StartNew(WatcherThread, TaskCreationOptions.LongRunning);
         NotificationHandler.Current.OnNotificationAdded += (sender, notification) =>
         {
             SendNotification(new UINotification

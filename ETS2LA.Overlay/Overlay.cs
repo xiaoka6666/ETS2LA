@@ -76,7 +76,7 @@ public class OverlayHandler
         overlaySettings = OverlaySettingsHandler.Current.GetSettings();
         OverlaySettingsHandler.Current.OnSettingsUpdated += OnOverlaySettingsUpdated;
 
-        Task.Run(() => RenderLoop());
+        Task.Factory.StartNew(RenderLoop, TaskCreationOptions.LongRunning);
         
         windows.Add(new ConsoleWindow());
         windows.Add(new OverlayInfoWindow());
