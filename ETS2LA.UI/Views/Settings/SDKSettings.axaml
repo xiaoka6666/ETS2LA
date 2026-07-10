@@ -13,8 +13,6 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel>
             <TextBlock Text="Click a card to install/uninstall our SDKs." Classes="Description" Margin="14 7 14 7" />
-            <TextBlock Text="Note: On linux we cannot automatically detect the game version, please enter it manually." Margin="14 7 14 7" IsVisible="{Binding IsLinux}" />
-            <TextBlock Text="We also cannot automatically detect if the SDK is installed. Update work as expected, but for uninstalling you need to do it manually." Margin="14 7 14 7" IsVisible="{Binding IsLinux}" />
             <ItemsControl x:Name="GameList" ItemsSource="{Binding Games}" ItemsPanel="{StaticResource WrapPanelTemplate}" AutomationProperties.Name="List of detected games">
 
                 <ItemsControl.Styles>
@@ -42,7 +40,7 @@
                             AutomationProperties.Name="{Binding AutomationName}"
                             AutomationProperties.AccessibilityView="Content"
                         >
-                            <Grid ColumnDefinitions="*, Auto" ColumnSpacing="6">
+                            <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="6">
                                 <StackPanel Spacing="6" Grid.Column="0">
                                     <StackPanel Spacing="6" Orientation="Horizontal">
                                         <husk:Tag Grid.Column="1" IsVisible="{Binding IsSDKInstalled}" Classes="Primary" HorizontalAlignment="Right">
@@ -57,11 +55,15 @@
                                     <TextBlock Text="{Binding Path}" Classes="Description" FontSize="12" Padding="0 0 0 4" />
                                 </StackPanel>
                                 <TextBox Grid.Column="1" PlaceholderText="Enter Version" IsVisible="{Binding IsUnknownVersion}" Text="{Binding UpdatedVersion, Mode=TwoWay}" FontSize="12" Width="200" HorizontalAlignment="Right" />
+                                <Button Grid.Column="2" Content="Remove" FontSize="12" IsVisible="{Binding IsManuallyAdded}" Tag="{Binding}" Click="OnRemoveGame" VerticalAlignment="Center" AutomationProperties.Name="{Binding Name, StringFormat='Remove manually added {0}'}" />
                             </Grid>
                         </husk:Card>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
+
+            <TextBlock Text="Game missing? If your installation wasn't detected automatically, you can add it by selecting its install folder (the one containing base.scs)." Classes="Description" Margin="14 7 14 0" TextWrapping="Wrap" />
+            <Button Content="Add Game Manually" Width="150" HorizontalAlignment="Left" Margin="14 7 14 7" Click="OnAddGameManually" AutomationProperties.Name="Add Game Manually" />
         </StackPanel>
     </ScrollViewer>
 </UserControl>

@@ -5,6 +5,7 @@ using System.ComponentModel;
 using Avalonia.Interactivity;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Platform.Storage;
 
 using ETS2LA.Game;
 using ETS2LA.Notifications;
@@ -15,12 +16,6 @@ namespace ETS2LA.UI.Views.Settings;
 public partial class SDKSettings : UserControl
 {
     public ObservableCollection<GameItem> Games { get; } = new();
-
-    # if LINUX
-    public bool IsLinux => true;
-    # else
-    public bool IsLinux => false;
-    # endif
 
     public SDKSettings()
     {
@@ -59,6 +54,47 @@ public partial class SDKSettings : UserControl
             }
         }
     }
+
+    private async void OnAddGameManually(object? sender, RoutedEventArgs e)
+    {
+        var topLevel = TopLevel.GetTopLevel(this);
+        if (topLevel == null)
+            return;
+
+        var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+        {
+            Title = "Select the game's install folder",
+            AllowMultiple = false
+        });
+
+        if (folders.Count == 0)
+            return;
+
+        string? gamePath = folders[0].TryGetLocalPath();
+        var installation = gamePath != null ? GameHandler.Current.AddManualInstallation(gamePath) : null;
+        if (installation == null)
+        {
+            NotificationHandler.Current.SendNotification(new Notification
+            {
+                Id = "ETS2LA.UI.SDKSettings.AddGameFailed",
+                Title = "Could not add game",
+                Content = "No ETS2 or ATS executable was found in the selected folder. Please select the game's install folder, for example '.../steamapps/common/Euro Truck Simulator 2'.",
+                Level = NotificationLevel.Danger
+            });
+            return;
+        }
+
+        UpdateGamesList();
+    }
+
+    private void OnRemoveGame(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Control { Tag: GameItem item })
+        {
+            GameHandler.Current.RemoveManualInstallation(item.Installation);
+            UpdateGamesList();
+        }
+    }
 }
 
 public class GameItem : INotifyPropertyChanged
@@ -69,8 +105,11 @@ public class GameItem : INotifyPropertyChanged
     public string Path => installation.Path;
     public bool IsUnknownVersion => !Version.Contains(".");
     public bool IsSDKInstalled => installation.IsSDKInstalled(IsUnknownVersion ? UpdatedVersion : Version);
+    public bool IsManuallyAdded => installation.IsManuallyAdded;
 
     public string AutomationName => GetAutomationName();
+
+    public Installation Installation => installation;
 
     private Installation installation;
 

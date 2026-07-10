@@ -34,6 +34,8 @@ public class Installation
 
     public string Version { get; set; } = "Undetermined";
 
+    public bool IsManuallyAdded { get; set; } = false;
+
     public bool IsParsed { get; set; } = false;
     public bool IsParsing { get; set; } = false;
     
