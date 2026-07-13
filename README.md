@@ -7,7 +7,7 @@ ETS2LA is a project that aims to finally bring self-driving technology to SCS So
 
 
 ### Important Links
-- [Download](https://ets2la.com/download) - Instructions on how to download and install the current version.
+- [Download](https://github.com/ETS2LA/ETS2LA/releases/latest) - Instructions on how to download and install the current version.
 - [Discord](https://ets2la.com/discord) - Join our community to talk to the developers and get support.
 - [Website](https://ets2la.com) - For troubleshooting and help. *Out of date with the current version!*
 - [Docs](https://docs.ets2la.com) - Developer documentation. If you want to work on ETS2LA or plugins you should start here.
