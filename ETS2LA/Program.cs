@@ -23,6 +23,9 @@ namespace ETS2LA;
 
 internal static class Program
 {
+    private static TracerProvider? _tracerProvider;
+    private static MeterProvider? _meterProvider;
+
     /// <summary>
     ///  Main entrypoint for ETS2LA.
     /// </summary>
@@ -74,8 +77,7 @@ internal static class Program
             .AddService("ETS2LA", serviceVersion: currentVersion)
             .AddAttributes(OTelAttributes.GetAttributes());
 
-        // These get automatically removed because of using var
-        using var tracerProvider = Sdk.CreateTracerProviderBuilder()
+        _tracerProvider = Sdk.CreateTracerProviderBuilder()
             .SetResourceBuilder(appResource)
             .AddSource("ETS2LA.*")
             .AddOtlpExporter(options =>
@@ -85,7 +87,7 @@ internal static class Program
             })
             .Build();
         
-        using var meterProvider = Sdk.CreateMeterProviderBuilder()
+        _meterProvider = Sdk.CreateMeterProviderBuilder()
             .SetResourceBuilder(appResource)
             .AddMeter("ETS2LA.*")
             .AddOtlpExporter(options =>
@@ -140,6 +142,8 @@ internal static class Program
         TutorialHandler.Current.Shutdown();
 
         LogFileWriter.Current.Save();
+        _meterProvider?.Dispose();
+        _tracerProvider?.Dispose();
     }
 
     /// <summary>
@@ -182,6 +186,11 @@ internal static class Program
         catch { }
 
         LogFileWriter.Current.Save();
+
+        // Environment.Exit skips disposal so we flush manually.
+        try { _meterProvider?.ForceFlush(5000); } catch { }
+        try { _tracerProvider?.ForceFlush(5000); } catch { }
+
         // Force terminate
         Environment.Exit(1);
     }
