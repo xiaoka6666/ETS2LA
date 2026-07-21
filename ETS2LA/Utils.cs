@@ -82,11 +82,15 @@ static class Utils
             {
                 // Avoid triggering the single-instance check during a restart.
                 using var process = System.Diagnostics.Process.GetProcessById(processId);
-                process.WaitForExit();
+                process.WaitForExit(10000);
             }
             catch (ArgumentException) { }
             catch (InvalidOperationException) { }
         }
+
+        DateTime deadline = DateTime.UtcNow + TimeSpan.FromSeconds(10);
+        while (DoesETS2LAProcessExist() && DateTime.UtcNow < deadline)
+            Thread.Sleep(50);
 
         // Keep the internal restart argument away from the UI.
         return args.Where(argument => !argument.StartsWith(argumentPrefix, StringComparison.Ordinal)).ToArray();
