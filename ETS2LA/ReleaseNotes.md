@@ -1,10 +1,8 @@
-### ETS2LA C# 3.4.24
-- Close ETS2LA if it's already running. This will display an error.
-- AudioHandler `Queue()` no longer allows files that don't exist. These would previously cause a crash.
-- `PluginApiHandler` no longer crashes when missing a network connection or the server is down.
-- **Drk** - Fix a case where ETS2LA could close before the crash report gets sent via telemetry.
-- **Drk** - Don't write spectre markup into `ets2la.log`.
-- **Drk** - Use memory editing for acceleration on Linux. This will be ported to Windows when the implementation is stable.
+### ETS2LA C# 3.4.27
+- Improved control refresh frequency. From 50hz to 100hz. This should alleviate issues where controls would either not register, or they would "stick".
+- Improved controller hat support on Windows.
+- `ETS2LA.Logging` will no longer crash if there's not a valid output pipe available.
+- **Drk** - Fixed catalogue crashing ETS2LA when pressing the Restart button.
 
 ---
 <!-- Content inside ETS2LA will be cutoff at the line above, do not place lines inside the changelog. -->
