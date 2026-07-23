@@ -20,19 +20,19 @@ public class NotificationHandler
     public void UpdateNotification(Notification notification)
     {
         var toUpdate = ActiveNotifications.FirstOrDefault(x => x.Id == notification.Id);
-        if (toUpdate != null)
-        {
-            toUpdate.Title = notification.Title;
-            toUpdate.Content = notification.Content;
-            toUpdate.Level = notification.Level;
-            toUpdate.Progress = notification.Progress;
-            toUpdate.IsProgressIndeterminate = notification.IsProgressIndeterminate;
-            toUpdate.CloseAfter = notification.CloseAfter;
-            toUpdate.ShowCloseButtonAfter = notification.ShowCloseButtonAfter;
-            toUpdate.CreatedAt = DateTime.UtcNow;
-        }
+        if (toUpdate == null)
+            return;
 
-        OnNotificationUpdated?.Invoke(this, notification);
+        toUpdate.Title = notification.Title;
+        toUpdate.Content = notification.Content;
+        toUpdate.Level = notification.Level;
+        toUpdate.Progress = notification.Progress;
+        toUpdate.IsProgressIndeterminate = notification.IsProgressIndeterminate;
+        toUpdate.CloseAfter = notification.CloseAfter;
+        toUpdate.ShowCloseButtonAfter = notification.ShowCloseButtonAfter;
+        toUpdate.CreatedAt = DateTime.UtcNow;
+
+        OnNotificationUpdated?.Invoke(this, toUpdate);
     }
 
     public void SendNotification(Notification notification)
