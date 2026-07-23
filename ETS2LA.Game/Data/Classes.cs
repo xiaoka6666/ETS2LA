@@ -1085,7 +1085,7 @@ public class PrefabPath
     /// <param name="distance">Distance along the path to interpolate.</param>
     /// <returns></returns>
     /// <exception cref="ArgumentOutOfRangeException">Distance is out of bounds.</exception>
-    public OrientedPoint? InterpolateDist(float distance)
+    public OrientedPoint? InterpolateDist(float distance, float additionalOffset = 0)
     {
         if (distance < 0 || distance > Length) throw new ArgumentOutOfRangeException(nameof(distance), "distance must be between 0 and path length");
     
@@ -1108,6 +1108,13 @@ public class PrefabPath
                 var point = PrefabUtils.InterpolateNavCurveOriented(curve, t);
                 point.Position = Vector3.Transform(point.Position + prefabStart, rotationMatrix);
                 point.Rotation = Quaternion.Normalize(Quaternion.CreateFromRotationMatrix(rotationMatrix) * point.Rotation);
+
+                if (additionalOffset != 0)
+                {
+                    Vector3 normal = Vector3.Normalize(Vector3.Transform(Vector3.UnitX, point.Rotation));
+                    point.Position += normal * additionalOffset;
+                }
+
                 return point;
             }
             if (CurveDirection == Direction.Forward)

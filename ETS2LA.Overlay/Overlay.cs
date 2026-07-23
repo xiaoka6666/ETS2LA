@@ -128,34 +128,26 @@ public class OverlayHandler
             start = fs.Elapsed.TotalMilliseconds;
             next += interval;
 
-            Stopwatch InteractionStopwatch = Stopwatch.StartNew();
-            if (!isInteracting) 
-            { 
+            if (!isInteracting) { 
                 // This has to be called each frame to properly update the flags.
                 // For whatever reason they are set back to default. Shouldn't affect
                 // performance, it's just weird...
                 ImGui.GetPlatformIO().Viewports[0].Flags |= ImGuiViewportFlags.NoInputs;
-
-                # if LINUX
-                GLFW.SetWindowAttrib(glfwWindow, GLFW.GLFW_MOUSE_PASSTHROUGH, 1);
-                # endif
-                
                 bgOpacityTarget = 0.0f;
-            }
-            else 
-            {
+
                 # if LINUX
-                GLFW.SetWindowAttrib(glfwWindow, GLFW.GLFW_MOUSE_PASSTHROUGH, 0);
+                    GLFW.SetWindowAttrib(glfwWindow, GLFW.GLFW_MOUSE_PASSTHROUGH, 1);
                 # endif
-                bgOpacityTarget = 0.5f;
             }
-            InteractionStopwatch.Stop();
+            else  {
+                bgOpacityTarget = 0.5f;
+                # if LINUX
+                    GLFW.SetWindowAttrib(glfwWindow, GLFW.GLFW_MOUSE_PASSTHROUGH, 0);
+                # endif
+            }
 
-            Stopwatch PollEventsStopwatch = Stopwatch.StartNew();
             GLFW.PollEvents();
-            PollEventsStopwatch.Stop();
 
-            Stopwatch NewFrameStopwatch = Stopwatch.StartNew();
             // Skip rendering if we're minimized, though this should actually
             // never happen for the overlay.
             if (GLFW.GetWindowAttrib(glfwWindow, GLFW.GLFW_ICONIFIED) != 0)
@@ -169,11 +161,9 @@ public class OverlayHandler
             ImGuiImplOpenGL3.NewFrame();
             ImGuiImplGLFW.NewFrame();
             ImGui.NewFrame();
-            NewFrameStopwatch.Stop();
 
             // The actual rendering is happening here,
             // all other calls are just setup.
-            Stopwatch ARStopwatch = Stopwatch.StartNew();
             try { 
                 if (AR == null) AR = new ARRenderer(gl);
                 bool paused = GameTelemetry.Current.GetCurrentData().paused;
@@ -182,37 +172,33 @@ public class OverlayHandler
             catch (Exception ex) {
                 Logger.Error($"Error in AR rendering: {ex}");
             }
-            ARStopwatch.Stop();
 
-            Stopwatch UIRenderStopwatch = Stopwatch.StartNew();
             try { OnUIRender(); }
             catch (Exception ex) {
                 Logger.Error($"Error rendering overlay: {ex}");
             }
-            UIRenderStopwatch.Stop();
             // ---
 
-            Stopwatch RenderStopwatch = Stopwatch.StartNew();
             ImGui.Render();
 
             gl.ClearColor(0f, 0f, 0f, bgOpacityTarget);
             gl.Clear(GLClearBufferMask.ColorBufferBit);
+
+            try { AR.RenderShaders(); } 
+            catch (Exception ex) {
+                Logger.Error($"Error in AR OpenGL pass: {ex}");
+            }
             
             ImGuiImplOpenGL3.RenderDrawData(ImGui.GetDrawData());
-            RenderStopwatch.Stop();
 
-            Stopwatch UpdatePlatformWindowsStopwatch = Stopwatch.StartNew();
             if ((io.ConfigFlags & ImGuiConfigFlags.ViewportsEnable) != 0)
             {
                 ImGui.UpdatePlatformWindows();
                 ImGui.RenderPlatformWindowsDefault();
             }
-            UpdatePlatformWindowsStopwatch.Stop();
 
-            Stopwatch SwapBuffersStopwatch = Stopwatch.StartNew();
             GLFW.SwapInterval(0); // disable vsync
             GLFW.SwapBuffers(glfwWindow);
-            SwapBuffersStopwatch.Stop();
 
             double remaining = next - fs.Elapsed.TotalMilliseconds;
             if (remaining > 1.0)
@@ -224,16 +210,6 @@ public class OverlayHandler
             
             frameTimes.Add((float)(fs.Elapsed.TotalMilliseconds - start));
             if (frameTimes.Count > targetFramerate) { frameTimes.RemoveAt(0); }
-
-            // TODO: There are some lag spikes that can't be explained using the 
-            // stopwatches in use here, where are those coming from?
-            // if (fs.Elapsed.TotalMilliseconds - start > interval + 20)
-            // {
-            //     Logger.Warn($"Overlay is running behind! Missed frame time by {fs.Elapsed.TotalMilliseconds - start - interval} ms");
-            //     Logger.Warn($"AR rendering took {ARStopwatch.Elapsed.TotalMilliseconds} ms, UI rendering took {UIRenderStopwatch.Elapsed.TotalMilliseconds} ms");
-            //     Logger.Warn($"Interaction took {InteractionStopwatch.Elapsed.TotalMilliseconds} ms, PollEvents took {PollEventsStopwatch.Elapsed.TotalMilliseconds} ms, NewFrame took {NewFrameStopwatch.Elapsed.TotalMilliseconds} ms");
-            //     Logger.Warn($"Render took {RenderStopwatch.Elapsed.TotalMilliseconds} ms, UpdatePlatformWindows took {UpdatePlatformWindowsStopwatch.Elapsed.TotalMilliseconds} ms, SwapBuffers took {SwapBuffersStopwatch.Elapsed.TotalMilliseconds} ms");
-            // }
         }
 
         ImGuiImplOpenGL3.Shutdown();

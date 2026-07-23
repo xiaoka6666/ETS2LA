@@ -1,12 +1,14 @@
 using ETS2LA.Game.SDK;
 using ETS2LA.Logging;
+using ETS2LA.Game.Telemetry;
+using ETS2LA.Overlay.Shaders;
 
 using System.Numerics;
-using Hexa.NET.ImGui;
 using TruckLib;
+
+using Hexa.NET.ImGui;
 using Hexa.NET.OpenGL;
 using Hexa.NET.ImGui.Backends.OpenGL3;
-using ETS2LA.Game.Telemetry;
 
 namespace ETS2LA.Overlay.AR;
 
@@ -33,9 +35,13 @@ public class ARRenderer
     private ARWindowBuffer currentWindowBuffer;
     private ImGuiContextPtr oldContext;
 
+    // Shaders
+    private LineWithGradient lineWithGradientShader;
+
     public ARRenderer(GL gl)
     {
         this.gl = gl;
+        this.lineWithGradientShader = new LineWithGradient(gl);
 
         // The font atlas needs to be shared between the main context
         // and our AR context here.
@@ -91,6 +97,14 @@ public class ARRenderer
                 Logger.Error($"Exception in AR render callback '{callback.Definition.Name}': {ex}");
             }
         }
+    }
+
+    /// <summary>
+    ///  Renders all shaders for this frame.
+    /// </summary>
+    public void RenderShaders()
+    {
+        lineWithGradientShader.RenderPass();
     }
 
     /// <summary>
@@ -199,6 +213,21 @@ public class ARRenderer
     }
 
     /// <summary>
+    ///  Converts a world position to -1 to 1 normalized device coordinates.
+    ///  Used by shaders.
+    /// </summary>
+    public Vector2? WorldToNDC(Vector3 worldPos)
+    {
+        if (thisFrameViewProjection == default)
+            thisFrameViewProjection = GetViewMatrix() * GetProjectionMatrix();
+
+        Vector4 clipSpacePos = Vector4.Transform(new Vector4(worldPos, 1.0f), thisFrameViewProjection);
+        if (clipSpacePos.W <= 0.1f) return null; // behind
+
+        return new Vector2(clipSpacePos.X / clipSpacePos.W, clipSpacePos.Y / clipSpacePos.W);
+    }
+
+    /// <summary>
     ///  This function will return the camera space coordinates of the provided ARCoordinate
     ///  while also taking into account the coordinate center.
     /// </summary>
@@ -277,6 +306,82 @@ public class ARRenderer
             p1.Value, p2.Value, 
             ConvertColor(color), thickness
         );
+    }
+
+    /// <summary>
+    /// Option A: Renders a HUD guide line from a single list of centerline points.
+    /// </summary>
+    /// <param name="points">Ordered path coordinates (from closest to farthest point)</param>
+    /// <param name="color">RGBA uint color format</param>
+    /// <param name="glowWidth">Width of the glow bleed in world units</param>
+    /// <param name="isLeftLine">True if this is the left boundary line, False if right boundary</param>
+    public void Draw3DLineWithGradient(IReadOnlyList<ARCoordinate> leftPoints, IReadOnlyList<ARCoordinate> rightPoints, uint color, float transparentValue = 0.0f)
+    {
+        if (leftPoints == null || rightPoints == null)
+            return;
+
+        int count = Math.Min(leftPoints.Count, rightPoints.Count);
+        if (count < 2)
+            return;
+
+        Vector3 camPos = cameraData.position;
+        float nearFadeStart = 30f;
+        float nearFadeEnd = 10f;
+        float farFadeStart = 60f;
+        float farFadeEnd = 150f;
+
+        Vector4 colVec = new Vector4(
+            ((color & 0xFF000000) >> 24) / 255.0f,
+            ((color & 0x00FF0000) >> 16) / 255.0f,
+            ((color & 0x0000FF00) >> 8) / 255.0f,
+            (color & 0x000000FF) / 255.0f
+        );
+
+        float GetProgressFloat(float distance)
+        {
+            if (distance < nearFadeEnd)
+                return 1.0f;
+            if (distance < nearFadeStart)
+                return (distance - nearFadeStart) / (nearFadeEnd - nearFadeStart);
+            if (distance > farFadeStart)
+                return (distance - farFadeStart) / (farFadeEnd - farFadeStart);
+            if (distance > farFadeEnd)
+                return 1.0f;
+            return 0.0f;
+        }
+
+        for (int i = 0; i < count - 1; i++)
+        {
+            ARCoordinate outStart = leftPoints[i];
+            ARCoordinate inStart  = rightPoints[i];
+            ARCoordinate outEnd   = leftPoints[i + 1];
+            ARCoordinate inEnd    = rightPoints[i + 1];
+
+            if (AllPointsOutsideRenderDistance(new[] { outStart, inStart, outEnd, inEnd }))
+                continue;
+
+            Vector2? ndcOutStart = WorldToNDC(ARCoordinateToVector3(outStart));
+            Vector2? ndcInStart  = WorldToNDC(ARCoordinateToVector3(inStart));
+            Vector2? ndcInEnd    = WorldToNDC(ARCoordinateToVector3(inEnd));
+            Vector2? ndcOutEnd   = WorldToNDC(ARCoordinateToVector3(outEnd));
+
+            if (!ndcOutStart.HasValue || !ndcInStart.HasValue || !ndcInEnd.HasValue || !ndcOutEnd.HasValue)
+                continue;
+
+            float distanceStart = Vector3.Distance(ARCoordinateToVector3(outStart), camPos);
+            float distanceEnd = Vector3.Distance(ARCoordinateToVector3(outEnd), camPos);
+
+            lineWithGradientShader.AddGlowQuad(
+                ndcOutStart.Value,
+                ndcInStart.Value,
+                ndcInEnd.Value,
+                ndcOutEnd.Value,
+                colVec,
+                GetProgressFloat(distanceStart),
+                GetProgressFloat(distanceEnd),
+                transparentValue
+            );
+        }
     }
 
     /// <summary>
@@ -438,7 +543,9 @@ public class ARRenderer
     /// <param name="position"></param>
     /// <param name="text"></param>
     /// <param name="color"></param>
-    public void Draw3DText(ARCoordinate position, string text, UInt32 color)
+    /// <param name="centerX">Whether to center the text horizontally on the position.</param>
+    /// <param name="centerY">Whether to center the text vertically on the position.</param>
+    public void Draw3DText(ARCoordinate position, string text, UInt32 color, float xFactor = 0f, float yFactor = 0f)
     {
         if (AllPointsOutsideRenderDistance(new ARCoordinate[] { position }))
             return;
@@ -446,8 +553,13 @@ public class ARRenderer
         Vector2? screenPos = WorldToScreen(ARCoordinateToVector3(position), thisFrameWidth, thisFrameHeight);
         if (!screenPos.HasValue) return;
 
+        Vector2 textSize = ImGui.CalcTextSize(text);
+        Vector2 drawPos = screenPos.Value;
+        drawPos.X -= textSize.X * xFactor;
+        drawPos.Y -= textSize.Y * yFactor;
+
         ImGui.GetBackgroundDrawList().AddText(
-            screenPos.Value, ConvertColor(color), text
+            drawPos, ConvertColor(color), text
         );
     }
 
