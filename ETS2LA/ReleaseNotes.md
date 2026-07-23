@@ -1,8 +1,8 @@
-### ETS2LA C# 3.4.27
-- Improved control refresh frequency. From 50hz to 100hz. This should alleviate issues where controls would either not register, or they would "stick".
-- Improved controller hat support on Windows.
-- `ETS2LA.Logging` will no longer crash if there's not a valid output pipe available.
-- **Drk** - Fixed catalogue crashing ETS2LA when pressing the Restart button.
+### ETS2LA C# 3.4.29
+- `ETS2LA.Overlay` now supports **custom OpenGL shaders**. 
+  - This is used in the newly updated core plugins. Please make sure to update your plugins after updating ETS2LA.
+- `Draw3DText` now supports **xFactor** and **yFactor** parameters to offset the text position relative to it's size.
+- **Drk** - Various small backend fixes.
 
 ---
 <!-- Content inside ETS2LA will be cutoff at the line above, do not place lines inside the changelog. -->
