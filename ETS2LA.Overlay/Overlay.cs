@@ -120,6 +120,8 @@ public class OverlayHandler
 
         while (GLFW.WindowShouldClose(glfwWindow) == 0 && !shutdown)
         {
+            try
+            {
             if (overlaySettings.LimitFramerate)
                 interval = 1000.0 / overlaySettings.MaxFramerate;
             else
@@ -210,6 +212,11 @@ public class OverlayHandler
             
             frameTimes.Add((float)(fs.Elapsed.TotalMilliseconds - start));
             if (frameTimes.Count > targetFramerate) { frameTimes.RemoveAt(0); }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"RenderLoop error: {ex.Message}");
+            }
         }
 
         ImGuiImplOpenGL3.Shutdown();

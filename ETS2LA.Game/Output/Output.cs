@@ -203,7 +203,17 @@ public class GameOutput
                 {
                     bool boolValue = (bool)value;
                     if(boolValue && boolType == ControlBooleanType.TrueToToggle)
-                        Task.Run(() => ToggleBool(legacyAccessor!, legacyShmOffsets[prop.Name]));
+                        Task.Run(() =>
+                        {
+                            try
+                            {
+                                ToggleBool(legacyAccessor!, legacyShmOffsets[prop.Name]);
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.Warn($"Output ToggleBool error: {ex.Message}");
+                            }
+                        });
                     else
                         WriteBool(legacyAccessor!, legacyShmOffsets[prop.Name], boolValue);
                 }
@@ -232,102 +242,113 @@ public class GameOutput
         Stopwatch tickTimer = Stopwatch.StartNew();
         while(true)
         {
-            double timeLeft = TickRate - tickTimer.Elapsed.TotalSeconds;
-            if (timeLeft > 0 && timeLeft < TickRate)
-            {
-                if (timeLeft * 1000 > 0.5)
-                {
-                    Thread.Sleep((int)(timeLeft * 1000));
-                    continue;
-                }
-            }
-
-            // These || need to be added to silence warnings...
-            // If someone knows how to make the compiler understand that MemoryAccessAvailable ensures
-            // that the accessors are not null, then please tell me.
-            if (!MemoryAccessAvailable || legacyAccessor == null || modernAccessor == null)
-            {
-                TryOpenMemory();
-                tickTimer.Restart();
-                continue;
-            }
-
-            if(Channels.Count == 0)
-            {
-                if (!IsReset)
-                    ResetOutputs();
-                
-                tickTimer.Restart();
-                continue;
-            }
-
-            IsReset = false;
             try
             {
-                foreach (var channel in Channels.Values)
+                double timeLeft = TickRate - tickTimer.Elapsed.TotalSeconds;
+                if (timeLeft > 0 && timeLeft < TickRate)
                 {
-                    if (channel.Properties == null || channel.Variables == null)
-                        continue;
-
-                    if (channel.LastUpdate.Elapsed.TotalSeconds > channel.Definition.Timeout)
+                    if (timeLeft * 1000 > 0.5)
                     {
-                        Channels.Remove(channel.Definition.Id);
+                        Thread.Sleep((int)(timeLeft * 1000));
                         continue;
                     }
-
-                    ProcessChannel(channel);
                 }
-            } catch {}
 
-            double time = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() / 1000.0;
-            foreach (var kvp in curFrameFloats)
-            {
-                string propName = kvp.Key;
-                List<Tuple<float, float>> values = kvp.Value;
-
-                float totalWeight = values.Sum(v => v.Item1);
-                float weightedValue = values.Sum(v => v.Item1 * v.Item2) / totalWeight;
-                weightedValue = Math.Clamp(weightedValue, -1f, 1f);
-
-                if(propName == "steering")
+                // These || need to be added to silence warnings...
+                // If someone knows how to make the compiler understand that MemoryAccessAvailable ensures
+                // that the accessors are not null, then please tell me.
+                if (!MemoryAccessAvailable || legacyAccessor == null || modernAccessor == null)
                 {
-                    WriteFloat(modernAccessor, 0, weightedValue);
-                    WriteBool(modernAccessor, 4, weightedValue != 0.0f);
-                    WriteDouble(modernAccessor, 5, time);
+                    TryOpenMemory();
+                    tickTimer.Restart();
+                    continue;
                 }
-                else if (propName == "acceleration")
+
+                if(Channels.Count == 0)
                 {
-                    #if LINUX
-                        // The Linux game plugin writes the throttle to the analog 'aforward'
-                        // input mix, so this works as expected.
-                        WriteFloat(modernAccessor, 13, weightedValue);
-                        WriteBool(modernAccessor, 17, weightedValue != 0.0f);
-                        WriteDouble(modernAccessor, 18, time);
-                    # else
-                        if (weightedValue > 0)
+                    if (!IsReset)
+                        ResetOutputs();
+                
+                    tickTimer.Restart();
+                    continue;
+                }
+
+                IsReset = false;
+                try
+                {
+                    foreach (var channel in Channels.Values)
+                    {
+                        if (channel.Properties == null || channel.Variables == null)
+                            continue;
+
+                        if (channel.LastUpdate.Elapsed.TotalSeconds > channel.Definition.Timeout)
                         {
-                            WriteFloat(legacyAccessor, legacyShmOffsets["aforward"], weightedValue);
-                            WriteFloat(legacyAccessor, legacyShmOffsets["abackward"], 0);
+                            Channels.Remove(channel.Definition.Id);
+                            continue;
                         }
-                        else
-                        {
-                            WriteFloat(legacyAccessor, legacyShmOffsets["abackward"], -weightedValue);
-                            WriteFloat(legacyAccessor, legacyShmOffsets["aforward"], 0);
-                        }
-                    # endif
+
+                        ProcessChannel(channel);
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    WriteFloat(legacyAccessor!, legacyShmOffsets[propName], weightedValue);
+                    Logger.Warn($"Output ProcessChannel error: {ex.Message}");
                 }
+
+                double time = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() / 1000.0;
+                foreach (var kvp in curFrameFloats)
+                {
+                    string propName = kvp.Key;
+                    List<Tuple<float, float>> values = kvp.Value;
+
+                    float totalWeight = values.Sum(v => v.Item1);
+                    float weightedValue = values.Sum(v => v.Item1 * v.Item2) / totalWeight;
+                    weightedValue = Math.Clamp(weightedValue, -1f, 1f);
+
+                    if(propName == "steering")
+                    {
+                        WriteFloat(modernAccessor, 0, weightedValue);
+                        WriteBool(modernAccessor, 4, weightedValue != 0.0f);
+                        WriteDouble(modernAccessor, 5, time);
+                    }
+                    else if (propName == "acceleration")
+                    {
+                        #if LINUX
+                            // The Linux game plugin writes the throttle to the analog 'aforward'
+                            // input mix, so this works as expected.
+                            WriteFloat(modernAccessor, 13, weightedValue);
+                            WriteBool(modernAccessor, 17, weightedValue != 0.0f);
+                            WriteDouble(modernAccessor, 18, time);
+                        # else
+                            if (weightedValue > 0)
+                            {
+                                WriteFloat(legacyAccessor, legacyShmOffsets["aforward"], weightedValue);
+                                WriteFloat(legacyAccessor, legacyShmOffsets["abackward"], 0);
+                            }
+                            else
+                            {
+                                WriteFloat(legacyAccessor, legacyShmOffsets["abackward"], -weightedValue);
+                                WriteFloat(legacyAccessor, legacyShmOffsets["aforward"], 0);
+                            }
+                        # endif
+                    }
+                    else
+                    {
+                        WriteFloat(legacyAccessor!, legacyShmOffsets[propName], weightedValue);
+                    }
+                }
+
+                modernAccessor.Flush();
+                legacyAccessor.Flush();
+
+                curFrameFloats.Clear();
+                tickTimer.Restart();
             }
-
-            modernAccessor.Flush();
-            legacyAccessor.Flush();
-
-            curFrameFloats.Clear();
-            tickTimer.Restart();
-        }
+            catch (Exception ex)
+            {
+                Logger.Error($"Output Tick error: {ex.Message}");
+                Thread.Sleep(100);
+            }
 
     }
 }

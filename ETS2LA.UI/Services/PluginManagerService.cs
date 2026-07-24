@@ -1,4 +1,5 @@
 using ETS2LA.Backend;
+using ETS2LA.Logging;
 using ETS2LA.Shared;
 
 namespace ETS2LA.UI.Services;
@@ -10,7 +11,11 @@ public sealed class PluginManagerService
     public PluginManagerService()
     {
         backend = PluginBackend.Current;
-        Task.Run(() => backend.Start());
+        Task.Run(() =>
+        {
+            try { backend.Start(); }
+            catch (Exception ex) { Logger.Error($"Plugin backend start error: {ex.Message}"); }
+        });
     }
 
     public List<IPlugin> GetPlugins()

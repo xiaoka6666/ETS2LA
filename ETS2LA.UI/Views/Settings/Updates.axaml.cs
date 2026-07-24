@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Huskui.Avalonia.Models;
 
+using ETS2LA.Logging;
 using ETS2LA.Shared;
 using ETS2LA.Networking.Updates;
 using ETS2LA.Notifications;
@@ -64,35 +65,39 @@ public partial class Updates : UserControl, INotifyPropertyChanged
             IsProgressIndeterminate = true
         });
         Task.Run(() => {
-            LatestUpdateInfo = _updater.CheckForUpdates();
-            if (LatestUpdateInfo != null)
+            try
             {
-                NotificationHandler.Current.SendNotification(new Notification
+                LatestUpdateInfo = _updater.CheckForUpdates();
+                if (LatestUpdateInfo != null)
                 {
-                    Id = "UpdateNotification",
-                    Title = "有可用更新",
-                    Content = $"有新版本可用：{LatestUpdateInfo.TargetFullRelease.Version}",
-                    Level = NotificationLevel.Success,
-                    CloseAfter = 5,
-                    IsProgressIndeterminate = false
-                });
-                OnPropertyChanged(nameof(IsUpdateAvailable));
-                OnPropertyChanged(nameof(LatestVersion));
-                OnPropertyChanged(nameof(LatestUpdateInfo));
-                OnPropertyChanged(nameof(ReleaseNotes));
-            }
-            else
-            {
-                NotificationHandler.Current.SendNotification(new Notification
+                    NotificationHandler.Current.SendNotification(new Notification
+                    {
+                        Id = "UpdateNotification",
+                        Title = "有可用更新",
+                        Content = $"有新版本可用：{LatestUpdateInfo.TargetFullRelease.Version}",
+                        Level = NotificationLevel.Success,
+                        CloseAfter = 5,
+                        IsProgressIndeterminate = false
+                    });
+                    OnPropertyChanged(nameof(IsUpdateAvailable));
+                    OnPropertyChanged(nameof(LatestVersion));
+                    OnPropertyChanged(nameof(LatestUpdateInfo));
+                    OnPropertyChanged(nameof(ReleaseNotes));
+                }
+                else
                 {
-                    Id = "UpdateNotification",
-                    Title = "无可用更新",
-                    Content = "您正在使用最新版本。",
-                    Level = NotificationLevel.Information,
-                    CloseAfter = 5,
-                    IsProgressIndeterminate = false
-                });
+                    NotificationHandler.Current.SendNotification(new Notification
+                    {
+                        Id = "UpdateNotification",
+                        Title = "无可用更新",
+                        Content = "您正在使用最新版本。",
+                        Level = NotificationLevel.Information,
+                        CloseAfter = 5,
+                        IsProgressIndeterminate = false
+                    });
+                }
             }
+            catch (Exception ex) { Logger.Warn($"Update check error: {ex.Message}"); }
         });
     }
 
@@ -115,18 +120,22 @@ public partial class Updates : UserControl, INotifyPropertyChanged
         {
             Task.Run(() => 
             {
-                NotificationHandler.Current.SendNotification(new Notification
+                try
                 {
-                    Id = "UpdateDownloadProgress",
-                    Title = "正在下载更新",
-                    Content = $"开始下载...",
-                    Level = NotificationLevel.Information,
-                    Progress = 0,
-                    CloseAfter = 0
-                });
-                _updater.DownloadUpdates(LatestUpdateInfo, DownloadCallback);
-                _updater.ApplyUpdatesAndRestart(LatestUpdateInfo);
-                NotificationHandler.Current.CloseNotification("UpdateDownloadProgress");
+                    NotificationHandler.Current.SendNotification(new Notification
+                    {
+                        Id = "UpdateDownloadProgress",
+                        Title = "正在下载更新",
+                        Content = $"开始下载...",
+                        Level = NotificationLevel.Information,
+                        Progress = 0,
+                        CloseAfter = 0
+                    });
+                    _updater.DownloadUpdates(LatestUpdateInfo, DownloadCallback);
+                    _updater.ApplyUpdatesAndRestart(LatestUpdateInfo);
+                    NotificationHandler.Current.CloseNotification("UpdateDownloadProgress");
+                }
+                catch (Exception ex) { Logger.Error($"Update download error: {ex.Message}"); }
             });
         }
     }

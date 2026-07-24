@@ -45,7 +45,11 @@ public class AudioHandler
         _settingsHandler = new SettingsHandler();
         _settings = _settingsHandler.Load<AudioSettings>("AudioSettings.json");
         _settingsHandler.RegisterListener<AudioSettings>("AudioSettings.json", OnSettingsChanged);
-        Task.Run(ProcessAudioQueue);
+        Task.Run(async () =>
+        {
+            try { await ProcessAudioQueue(); }
+            catch (Exception ex) { Logger.Error($"Audio processing error: {ex.Message}"); }
+        });
     }
 
     /// <summary>

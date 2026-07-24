@@ -51,8 +51,15 @@ public class LogFileWriter
     {
         while (true)
         {
-            Thread.Sleep(5000);
-            Save();
+            try
+            {
+                Thread.Sleep(5000);
+                Save();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"LogFileWriter error: {ex.Message}");
+            }
         }
     }
 
