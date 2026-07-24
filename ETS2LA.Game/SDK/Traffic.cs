@@ -25,6 +25,14 @@ public class BaseVehicle
         corners.Add(Position + new Vector3(halfSize.X, -halfSize.Y, halfSize.Z));
         corners.Add(Position + new Vector3(-halfSize.X, -halfSize.Y, halfSize.Z));
 
+        // 检查四元数有效性，防止 NaN 或零长度四元数导致 ToEuler() 崩溃
+        if (float.IsNaN(Rotation.X) || float.IsNaN(Rotation.Y) || float.IsNaN(Rotation.Z) || float.IsNaN(Rotation.W) ||
+            MathF.Abs(Rotation.Length()) < 0.0001f)
+        {
+            Logger.Warn($"Traffic: Invalid rotation quaternion for vehicle, skipping");
+            return new List<Vector3>();
+        }
+
         Quaternion invQuat = Quaternion.Conjugate(Rotation);
         Vector3 euler = invQuat.ToEuler();
         Quaternion filteredRot = Quaternion.CreateFromYawPitchRoll(-euler.Y + (float)Math.PI, -euler.Z + (float)Math.PI, -euler.X);

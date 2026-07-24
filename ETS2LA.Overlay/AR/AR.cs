@@ -81,6 +81,21 @@ public class ARRenderer
     /// </summary>
     public void Render()
     {
+        // 从 CameraProvider 获取 CameraData 的快照副本，避免在后台线程写入
+        // 时出现数据竞争（例如部分更新的四元数）。
+        var rawCameraData = CameraProvider.Current.GetCurrentData();
+        cameraData = new CameraData
+        {
+            fov = rawCameraData.fov,
+            position = rawCameraData.position,
+            rotation = rawCameraData.rotation,
+            cx = rawCameraData.cx,
+            cy = rawCameraData.cy,
+            projection = rawCameraData.projection,
+            truckPosition = rawCameraData.truckPosition,
+            truckRotation = rawCameraData.truckRotation,
+        };
+
         thisFrameProjection = default;
         thisFrameView = default;
         thisFrameViewProjection = default;
@@ -159,6 +174,14 @@ public class ARRenderer
         // The game's output is a bit weird, so we need to do adjustments to get it
         // to match what System.Numerics expects. There might be multiple inversions here?
         // TODO: Could be simplified?
+        // 四元数有效性检查：防止因 NaN 或零长度导致矩阵计算异常
+        if (float.IsNaN(camRot.X) || float.IsNaN(camRot.Y) || float.IsNaN(camRot.Z) || float.IsNaN(camRot.W) ||
+            MathF.Abs(camRot.Length()) < 0.0001f)
+        {
+            Logger.Warn($"AR: Invalid camera quaternion ({camRot}), using identity");
+            camRot = Quaternion.Identity;
+        }
+
         Quaternion invQuat = Quaternion.Conjugate(camRot);
         Vector3 euler = invQuat.ToEuler();
         Quaternion filteredRot = Quaternion.CreateFromYawPitchRoll(-euler.Y + (float)Math.PI, -euler.Z + (float)Math.PI, -euler.X);
@@ -644,6 +667,14 @@ public class ARRenderer
 
         // Mirroring the same quaternion adjustments as in GetViewMatrix.
         // Again, if anyone has a better understanding they can fix this.
+        // 四元数有效性检查：防止因 NaN 或零长度导致矩阵计算异常
+        if (float.IsNaN(rotation.X) || float.IsNaN(rotation.Y) || float.IsNaN(rotation.Z) || float.IsNaN(rotation.W) ||
+            MathF.Abs(rotation.Length()) < 0.0001f)
+        {
+            Logger.Warn($"AR: Invalid rotation quaternion in EndWindow ({rotation}), skipping");
+            return;
+        }
+
         Quaternion invQuat = Quaternion.Conjugate(rotation);
         Vector3 euler = invQuat.ToEuler();
         Quaternion correctedRot = Quaternion.CreateFromYawPitchRoll(
