@@ -349,6 +349,6 @@ public class GameOutput
                 Logger.Error($"Output Tick error: {ex.Message}");
                 Thread.Sleep(100);
             }
-
+        }
     }
 }
