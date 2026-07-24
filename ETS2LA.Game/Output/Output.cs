@@ -13,6 +13,7 @@ public class GameOutput
     public string EventString = "ETS2LA.Game.Output.ControlEvent";
 
     public Dictionary<string, ControlChannel> Channels = new Dictionary<string, ControlChannel>();
+    private readonly object _channelsLock = new();
 
     // Example:
     // "steering" : [(0.5, 1.0), (0.2, 0.5)]
@@ -105,25 +106,28 @@ public class GameOutput
 
     public void OnControlEvent(ControlEvent controlEvent)
     {
-        string channel = controlEvent.ChannelDefinition.Id;
-        if (!Channels.ContainsKey(channel))
+        lock (_channelsLock)
         {
-            Channels[channel] = new ControlChannel{
-                Definition = controlEvent.ChannelDefinition,
-                Properties = controlEvent.Properties,
-                Variables = controlEvent.Variables
-            };
-        }
-        else if (controlEvent.Variables == null || controlEvent.Properties == null)
-        {
-            Channels.Remove(channel);
-        }
-        else
-        {
-            Channels[channel].Properties = controlEvent.Properties;
-            Channels[channel].Variables = controlEvent.Variables;
-            Channels[channel].LastUpdate.Restart();
-            Channels[channel].BoolsProcessed = false;
+            string channel = controlEvent.ChannelDefinition.Id;
+            if (!Channels.ContainsKey(channel))
+            {
+                Channels[channel] = new ControlChannel{
+                    Definition = controlEvent.ChannelDefinition,
+                    Properties = controlEvent.Properties,
+                    Variables = controlEvent.Variables
+                };
+            }
+            else if (controlEvent.Variables == null || controlEvent.Properties == null)
+            {
+                Channels.Remove(channel);
+            }
+            else
+            {
+                Channels[channel].Properties = controlEvent.Properties;
+                Channels[channel].Variables = controlEvent.Variables;
+                Channels[channel].LastUpdate.Restart();
+                Channels[channel].BoolsProcessed = false;
+            }
         }
     }
 
@@ -276,14 +280,30 @@ public class GameOutput
                 IsReset = false;
                 try
                 {
-                    foreach (var channel in Channels.Values)
+                    List<string> channelKeys;
+                    lock (_channelsLock)
                     {
+                        channelKeys = Channels.Keys.ToList();
+                    }
+
+                    foreach (var key in channelKeys)
+                    {
+                        ControlChannel? channel;
+                        lock (_channelsLock)
+                        {
+                            if (!Channels.TryGetValue(key, out channel))
+                                continue;
+                        }
+
                         if (channel.Properties == null || channel.Variables == null)
                             continue;
 
                         if (channel.LastUpdate.Elapsed.TotalSeconds > channel.Definition.Timeout)
                         {
-                            Channels.Remove(channel.Definition.Id);
+                            lock (_channelsLock)
+                            {
+                                Channels.Remove(key);
+                            }
                             continue;
                         }
 
