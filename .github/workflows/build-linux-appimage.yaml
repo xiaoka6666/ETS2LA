@@ -1,0 +1,87 @@
+name: Build Linux AppImage
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Override version number (leave empty to read from .csproj)'
+        required: false
+        type: string
+      publish_to_releases:
+        description: 'Publish AppImage to GitHub Releases'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-linux:
+    name: Build & Pack Linux AppImage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Get Version from Project File
+        id: get-version
+        run: |
+          CSPROJ_VERSION=$(grep -oE '<Version>[^<]+' ETS2LA/ETS2LA.csproj | sed 's/<Version>//')
+          OVERRIDE="${{ inputs.version }}"
+          if [ -n "$OVERRIDE" ]; then
+            echo "version=$OVERRIDE" >> $GITHUB_OUTPUT
+          else
+            echo "version=$CSPROJ_VERSION" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build
+        run: |
+          ./publish.sh
+
+      - name: Install vpk tool
+        run: |
+          dotnet tool install -g vpk
+
+      - name: Pack AppImage
+        run: |
+          VPK="$HOME/.dotnet/tools/vpk"
+          rm -rf ./Releases
+          mkdir -p ./publish/Assets
+          printf "GitHub" > ./publish/Assets/DistributionSource.txt
+          $VPK pack \
+            --channel "linux-release" \
+            --packId ETS2LA \
+            --packVersion ${{ steps.get-version.outputs.version }} \
+            --packDir ./publish \
+            --mainExe ETS2LA \
+            --icon ./ETS2LA.UI/Assets/logo.ico \
+            --packTitle "ETS2LA" \
+            --releaseNotes ./ETS2LA/ReleaseNotes.md
+
+      - name: Upload AppImage Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ETS2LA-Linux-AppImage
+          path: Releases/**
+
+      - name: Publish to GitHub Releases
+        if: ${{ inputs.publish_to_releases == true }}
+        run: |
+          VPK="$HOME/.dotnet/tools/vpk"
+          $VPK upload github \
+            --channel "linux-release" \
+            --merge \
+            --repoUrl "https://github.com/${{ github.repository }}" \
+            --publish \
+            --releaseName "ETS2LA C# v${{ steps.get-version.outputs.version }} (Pre-release)" \
+            --tag "v${{ steps.get-version.outputs.version }}" \
+            --token ${{ secrets.GITHUB_TOKEN }} \
+            --targetCommitish ${{ github.sha }}
