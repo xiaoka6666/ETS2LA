@@ -384,40 +384,48 @@ public class SDL3ControlsBackend : IControlsBackend
     {
         while (!_cts.IsCancellationRequested)
         {
-            if (!_sdlInitialized || _changingBindings)
+            try
             {
-                Thread.Sleep(100);
-                continue;
-            }
-
-            SDL.PumpEvents();
-
-            SDLEvent ev = default;
-            while (SDL.PollEvent(ref ev))
-            {
-                HandleEvent(ev);
-            }
-
-            lock (_sync)
-            {
-                foreach (var keyEvent in _pendingKeyEvents)
+                if (!_sdlInitialized || _changingBindings)
                 {
-                    if (keyEvent.RawEvent.Type == SharpHook.Data.EventType.KeyPressed)
-                    {
-                        var controlId = SharpHookCodeToCharacter(keyEvent.Data.KeyCode);
-                        UpdateMatchingControls("Keyboard", controlId, true);
-                    }
-                    else if (keyEvent.RawEvent.Type == SharpHook.Data.EventType.KeyReleased)
-                    {
-                        var controlId = SharpHookCodeToCharacter(keyEvent.Data.KeyCode);
-                        UpdateMatchingControls("Keyboard", controlId, false);
-                    }
+                    Thread.Sleep(100);
+                    continue;
                 }
 
-                _pendingKeyEvents.Clear();
-            }
+                SDL.PumpEvents();
 
-            Thread.Sleep(20);
+                SDLEvent ev = default;
+                while (SDL.PollEvent(ref ev))
+                {
+                    HandleEvent(ev);
+                }
+
+                lock (_sync)
+                {
+                    foreach (var keyEvent in _pendingKeyEvents)
+                    {
+                        if (keyEvent.RawEvent.Type == SharpHook.Data.EventType.KeyPressed)
+                        {
+                            var controlId = SharpHookCodeToCharacter(keyEvent.Data.KeyCode);
+                            UpdateMatchingControls("Keyboard", controlId, true);
+                        }
+                        else if (keyEvent.RawEvent.Type == SharpHook.Data.EventType.KeyReleased)
+                        {
+                            var controlId = SharpHookCodeToCharacter(keyEvent.Data.KeyCode);
+                            UpdateMatchingControls("Keyboard", controlId, false);
+                        }
+                    }
+
+                    _pendingKeyEvents.Clear();
+                }
+
+                Thread.Sleep(20);
+            }
+            catch (Exception ex)
+            {
+                Logger.Warn($"Control listener exception: {ex.Message}");
+                Thread.Sleep(100);
+            }
         }
     }
 

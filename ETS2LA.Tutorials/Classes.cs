@@ -211,17 +211,24 @@ public class TutorialExecutor
 
     public void ExecutionThread()
     {
-        sectionIndex = 0;
-        while (sectionIndex < tutorial.Sections.Count && !shutdown)
+        try
         {
-            Logger.Info($"Executing section {sectionIndex} of tutorial {tutorial.Title}");
-            ExecuteSection();
-            sectionIndex++;
+            sectionIndex = 0;
+            while (sectionIndex < tutorial.Sections.Count && !shutdown)
+            {
+                Logger.Info($"Executing section {sectionIndex} of tutorial {tutorial.Title}");
+                ExecuteSection();
+                sectionIndex++;
+            }
+            if (!shutdown)
+            {
+                Logger.Success($"Finished executing tutorial {tutorial.Title}");
+                OnTutorialComplete?.Invoke(this, tutorial.Title);
+            }
         }
-        if (!shutdown)
+        catch (Exception ex)
         {
-            Logger.Success($"Finished executing tutorial {tutorial.Title}");
-            OnTutorialComplete?.Invoke(this, tutorial.Title);
+            Logger.Error($"Tutorial execution error: {ex.Message}");
         }
     }
 }

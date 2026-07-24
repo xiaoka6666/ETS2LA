@@ -24,6 +24,7 @@ public class UINotificationHandler
 
     private AppWindow? _window;
     private bool _isRunning = true;
+    private readonly object _lock = new();
     public List<UINotification> ActiveNotifications { get; private set; } = new();
 
     public UINotificationHandler()
@@ -88,43 +89,55 @@ public class UINotificationHandler
     {
         while (_isRunning)
         {
-            var now = DateTime.UtcNow;
-            var toClose = new List<string>();
-            foreach (var notif in ActiveNotifications)
+            try
             {
-                if (notif.IsProgressIndeterminate || notif.CloseAfter <= 0.0f)
-                    continue; // skip progress notifs
+                var now = DateTime.UtcNow;
+                var toClose = new List<string>();
 
-                float timeElapsed = (float)(now - notif.CreatedAt).TotalSeconds;
-                float progress = timeElapsed / notif.CloseAfter * 100; // (0.0 to 100.0)
+                // 创建快照副本避免并发修改异常
+                List<UINotification> snapshot;
+                lock (_lock) { snapshot = new List<UINotification>(ActiveNotifications); }
 
-                if (notif.CloseAfter > 0.0f)
+                foreach (var notif in snapshot)
                 {
-                    UINotification clone = new UINotification
+                    if (notif.IsProgressIndeterminate || notif.CloseAfter <= 0.0f)
+                        continue; // skip progress notifs
+
+                    float timeElapsed = (float)(now - notif.CreatedAt).TotalSeconds;
+                    float progress = timeElapsed / notif.CloseAfter * 100; // (0.0 to 100.0)
+
+                    if (notif.CloseAfter > 0.0f)
                     {
-                        Id = notif.Id,
-                        Title = notif.Title,
-                        Content = notif.Content,
-                        Level = notif.Level,
-                        Progress = progress,
-                        IsProgressIndeterminate = false,
-                        CloseAfter = notif.CloseAfter,
-                        ShowCloseButtonAfter = notif.ShowCloseButtonAfter,
-                        CreatedAt = notif.CreatedAt,
-                        IsInternal = true
-                    };
-                    UpdateNotification(clone);
+                        UINotification clone = new UINotification
+                        {
+                            Id = notif.Id,
+                            Title = notif.Title,
+                            Content = notif.Content,
+                            Level = notif.Level,
+                            Progress = progress,
+                            IsProgressIndeterminate = false,
+                            CloseAfter = notif.CloseAfter,
+                            ShowCloseButtonAfter = notif.ShowCloseButtonAfter,
+                            CreatedAt = notif.CreatedAt,
+                            IsInternal = true
+                        };
+                        UpdateNotification(clone);
+                    }
+
+                    if (notif.CloseAfter > 0.0f && timeElapsed >= notif.CloseAfter)
+                    {
+                        toClose.Add(notif.Id);
+                    }
                 }
 
-                if (notif.CloseAfter > 0.0f && timeElapsed >= notif.CloseAfter)
+                foreach (var id in toClose)
                 {
-                    toClose.Add(notif.Id);
+                    CloseNotification(id);
                 }
             }
-
-            foreach (var id in toClose)
+            catch (Exception ex)
             {
-                CloseNotification(id);
+                Logger.Warn($"Notification watcher exception: {ex.Message}");
             }
 
             Thread.Sleep(50);

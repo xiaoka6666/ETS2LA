@@ -57,34 +57,41 @@ public partial class SDKSettings : UserControl
 
     private async void OnAddGameManually(object? sender, RoutedEventArgs e)
     {
-        var topLevel = TopLevel.GetTopLevel(this);
-        if (topLevel == null)
-            return;
-
-        var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+        try
         {
-            Title = "选择游戏的安装文件夹",
-            AllowMultiple = false
-        });
+            var topLevel = TopLevel.GetTopLevel(this);
+            if (topLevel == null)
+                return;
 
-        if (folders.Count == 0)
-            return;
-
-        string? gamePath = folders[0].TryGetLocalPath();
-        var installation = gamePath != null ? GameHandler.Current.AddManualInstallation(gamePath) : null;
-        if (installation == null)
-        {
-            NotificationHandler.Current.SendNotification(new Notification
+            var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
             {
-                Id = "ETS2LA.UI.SDKSettings.AddGameFailed",
-                Title = "无法添加游戏",
-                Content = "在所选文件夹中未找到 ETS2 或 ATS 的可执行文件。请选择游戏的安装文件夹，例如「.../steamapps/common/Euro Truck Simulator 2」。",
-                Level = NotificationLevel.Danger
+                Title = "选择游戏的安装文件夹",
+                AllowMultiple = false
             });
-            return;
-        }
 
-        UpdateGamesList();
+            if (folders.Count == 0)
+                return;
+
+            string? gamePath = folders[0].TryGetLocalPath();
+            var installation = gamePath != null ? GameHandler.Current.AddManualInstallation(gamePath) : null;
+            if (installation == null)
+            {
+                NotificationHandler.Current.SendNotification(new Notification
+                {
+                    Id = "ETS2LA.UI.SDKSettings.AddGameFailed",
+                    Title = "无法添加游戏",
+                    Content = "在所选文件夹中未找到 ETS2 或 ATS 的可执行文件。请选择游戏的安装文件夹，例如「.../steamapps/common/Euro Truck Simulator 2」。",
+                    Level = NotificationLevel.Danger
+                });
+                return;
+            }
+
+            UpdateGamesList();
+        }
+        catch (Exception ex)
+        {
+            Logger.Error($"Failed to add game manually: {ex.Message}");
+        }
     }
 
     private void OnRemoveGame(object? sender, RoutedEventArgs e)

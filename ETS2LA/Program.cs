@@ -1,4 +1,4 @@
-﻿using Velopack;
+using Velopack;
 using Velopack.Locators;
 
 using ETS2LA.Tutorials;
@@ -49,7 +49,7 @@ internal static class Program
                 return;
             }
 
-            Utils.HandleFatalException(e.Exception, tracerProvider, meterProvider);
+            Logger.Error($"Unobserved Task Exception: {e.Exception}");
         };
 
         args = Utils.WaitForRestartParentProcess(args);
@@ -105,7 +105,14 @@ internal static class Program
         {
             while (!shutdown)
             {
-                AppAnalytics.Pulse();
+                try
+                {
+                    AppAnalytics.Pulse();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warn($"Analytics exception: {ex.Message}");
+                }
                 Thread.Sleep(TimeSpan.FromMinutes(1));
             }
         }, TaskCreationOptions.LongRunning);
@@ -114,12 +121,12 @@ internal static class Program
         {
             // These initialize global instances, if there's a more "official" way to
             // do this then please make a PR for that.
-            var ar = OverlayHandler.Current;
-            var backend = PluginBackend.Current;
-            var telemetry = GameTelemetry.Current;
-            var state = ApplicationState.Current;
-            var tutorials = TutorialHandler.Current;
-            var networking = NetworkingClient.Current;
+            try { var ar = OverlayHandler.Current; } catch (Exception ex) { Logger.Error($"Failed to init OverlayHandler: {ex.Message}"); }
+            try { var backend = PluginBackend.Current; } catch (Exception ex) { Logger.Error($"Failed to init PluginBackend: {ex.Message}"); }
+            try { var telemetry = GameTelemetry.Current; } catch (Exception ex) { Logger.Error($"Failed to init GameTelemetry: {ex.Message}"); }
+            try { var state = ApplicationState.Current; } catch (Exception ex) { Logger.Error($"Failed to init ApplicationState: {ex.Message}"); }
+            try { var tutorials = TutorialHandler.Current; } catch (Exception ex) { Logger.Error($"Failed to init TutorialHandler: {ex.Message}"); }
+            try { var networking = NetworkingClient.Current; } catch (Exception ex) { Logger.Error($"Failed to init NetworkingClient: {ex.Message}"); }
         });
 
         # if LINUX

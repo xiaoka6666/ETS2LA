@@ -1,4 +1,5 @@
 using ETS2LA.Audio;
+using ETS2LA.Logging;
 using Avalonia.Controls;
 using System.IO;
 using System.Threading.Tasks;
@@ -20,27 +21,34 @@ public partial class AudioSettings : UserControl
 
     private async void OnVolumeChanged(object? sender, Avalonia.Controls.Primitives.RangeBaseValueChangedEventArgs e)
     {
-        float volume = (float)(e.NewValue / 100.0);
-        _audioHandler.SetVolume(volume);
-
-        if (_skipFirstPlay)
+        try
         {
-            _skipFirstPlay = false;
-            return;
+            float volume = (float)(e.NewValue / 100.0);
+            _audioHandler.SetVolume(volume);
+
+            if (_skipFirstPlay)
+            {
+                _skipFirstPlay = false;
+                return;
+            }
+
+            if (_soundPlaying)
+                return;
+
+            _soundPlaying = true;
+
+            var volumeSound = Path.Combine(AppContext.BaseDirectory, "Assets", "Sounds", "volume.mp3");
+            if (File.Exists(volumeSound))
+            {
+                _audioHandler.Queue(volumeSound, overrideCurrent: true);
+            }
+
+            await Task.Delay(750);
+            _soundPlaying = false;
         }
-
-        if (_soundPlaying)
-            return;
-
-        _soundPlaying = true;
-
-        var volumeSound = Path.Combine(AppContext.BaseDirectory, "Assets", "Sounds", "volume.mp3");
-        if (File.Exists(volumeSound))
+        catch (Exception ex)
         {
-            _audioHandler.Queue(volumeSound, overrideCurrent: true);
+            Logger.Warn($"Volume change error: {ex.Message}");
         }
-
-        await Task.Delay(750);
-        _soundPlaying = false;
     }
 }

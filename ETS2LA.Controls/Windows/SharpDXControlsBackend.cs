@@ -1,4 +1,4 @@
-﻿using ETS2LA.Logging;
+using ETS2LA.Logging;
 using ETS2LA.Settings;
 using SharpDX.DirectInput;
 using ETS2LA.Controls.Defaults;
@@ -303,94 +303,102 @@ public class SharpDXControlsBackend : IControlsBackend
         var lastDeviceRefresh = DateTime.MinValue;
         while (true)
         {
-            if (pauseListener)
+            try
             {
-                Thread.Sleep(100);
-                continue;
-            }
-
-            if ((DateTime.Now - lastDeviceRefresh).TotalSeconds >= 2)
-            {
-                try { RefreshConnectedJoysticks(); }
-                catch (Exception ex) { Logger.Warn($"Failed to refresh joysticks: {ex.Message}"); }
-                lastDeviceRefresh = DateTime.Now;
-            }
-
-            var kbBuffer = _keyboard.GetBufferedData();
-            foreach (var keyEvent in kbBuffer)
-            {
-                string controlId = ((Key)keyEvent.Key).ToString();
-                var matchingControls = RegisteredControls.Where(c => 
-                    c.DeviceId == "Keyboard" && 
-                    c.ControlId.ToString() == controlId);
-
-                foreach (var control in matchingControls)
+                if (pauseListener)
                 {
-                    bool isPressed = keyEvent.Value != 0;
-                    control.UpdateState(isPressed);
-                }
-            }
-
-            foreach (var joystick in _connectedJoysticks)
-            {
-                JoystickUpdate[] data;
-                try
-                {
-                    joystick.Poll();
-                    data = joystick.GetBufferedData();
-                }
-                catch
-                {
+                    Thread.Sleep(100);
                     continue;
                 }
 
-                foreach (var update in data)
+                if ((DateTime.Now - lastDeviceRefresh).TotalSeconds >= 2)
                 {
-                    string controlId = GetIdFromOffset(update.Offset);
-                    if (string.IsNullOrEmpty(controlId)) continue;
+                    try { RefreshConnectedJoysticks(); }
+                    catch (Exception ex) { Logger.Warn($"Failed to refresh joysticks: {ex.Message}"); }
+                    lastDeviceRefresh = DateTime.Now;
+                }
 
-                    if (!_previousStates.ContainsKey(joystick))
-                    {
-                        _previousStates[joystick] = new List<JoystickUpdate>();
-                    }
-
-                    bool needsReplace = _previousStates[joystick].Any(u => u.Offset == update.Offset);
-                    if (needsReplace) _previousStates[joystick].RemoveAll(u => u.Offset == update.Offset);
-                    _previousStates[joystick].Add(update);
-
+                var kbBuffer = _keyboard.GetBufferedData();
+                foreach (var keyEvent in kbBuffer)
+                {
+                    string controlId = ((Key)keyEvent.Key).ToString();
                     var matchingControls = RegisteredControls.Where(c => 
-                        c.DeviceId == joystick.Information.InstanceGuid.ToString() && 
-                        (c.ControlId.ToString()?.StartsWith(controlId) ?? false)
-                    );
+                        c.DeviceId == "Keyboard" && 
+                        c.ControlId.ToString() == controlId);
 
+                    foreach (var control in matchingControls)
+                    {
+                        bool isPressed = keyEvent.Value != 0;
+                        control.UpdateState(isPressed);
+                    }
+                }
+
+                foreach (var joystick in _connectedJoysticks)
+                {
+                    JoystickUpdate[] data;
                     try
                     {
-                        foreach (var control in matchingControls)
-                        {
-                            if (update.Offset >= JoystickOffset.Buttons0 && update.Offset <= JoystickOffset.Buttons127)
-                            {
-                                // Value is 128 for pressed, 0 for released (for whatever reason...)
-                                control.UpdateState(update.Value == 128);
-                            }
-                            else if (update.Offset >= JoystickOffset.PointOfViewControllers0 && update.Offset <= JoystickOffset.PointOfViewControllers3)
-                            {
-                                var dir = DecodePovHatSwitch(update.Value);
-                                control.UpdateState(dir == DecodeHatIdToValue(control.ControlId.ToString()));
-                            }
-                            else
-                            {
-                                // SharpDX axis values go from 0 to 65535
-                                // (luckily that stays constant across devices)
-                                float normalizedValue = NormalizeAxisValue(update.Value / 65535.0f, control.AxisBehavior);
-                                control.UpdateState(normalizedValue);
-                            }
-                        }
-                    } catch {}
-                }
-            }
+                        joystick.Poll();
+                        data = joystick.GetBufferedData();
+                    }
+                    catch
+                    {
+                        continue;
+                    }
 
-            // Sleep for 10ms -> ~100 updates per second
-            Thread.Sleep(10);
+                    foreach (var update in data)
+                    {
+                        string controlId = GetIdFromOffset(update.Offset);
+                        if (string.IsNullOrEmpty(controlId)) continue;
+
+                        if (!_previousStates.ContainsKey(joystick))
+                        {
+                            _previousStates[joystick] = new List<JoystickUpdate>();
+                        }
+
+                        bool needsReplace = _previousStates[joystick].Any(u => u.Offset == update.Offset);
+                        if (needsReplace) _previousStates[joystick].RemoveAll(u => u.Offset == update.Offset);
+                        _previousStates[joystick].Add(update);
+
+                        var matchingControls = RegisteredControls.Where(c => 
+                            c.DeviceId == joystick.Information.InstanceGuid.ToString() && 
+                            (c.ControlId.ToString()?.StartsWith(controlId) ?? false)
+                        );
+
+                        try
+                        {
+                            foreach (var control in matchingControls)
+                            {
+                                if (update.Offset >= JoystickOffset.Buttons0 && update.Offset <= JoystickOffset.Buttons127)
+                                {
+                                    // Value is 128 for pressed, 0 for released (for whatever reason...)
+                                    control.UpdateState(update.Value == 128);
+                                }
+                                else if (update.Offset >= JoystickOffset.PointOfViewControllers0 && update.Offset <= JoystickOffset.PointOfViewControllers3)
+                                {
+                                    var dir = DecodePovHatSwitch(update.Value);
+                                    control.UpdateState(dir == DecodeHatIdToValue(control.ControlId.ToString()));
+                                }
+                                else
+                                {
+                                    // SharpDX axis values go from 0 to 65535
+                                    // (luckily that stays constant across devices)
+                                    float normalizedValue = NormalizeAxisValue(update.Value / 65535.0f, control.AxisBehavior);
+                                    control.UpdateState(normalizedValue);
+                                }
+                            }
+                        } catch {}
+                    }
+                }
+
+                // Sleep for 10ms -> ~100 updates per second
+                Thread.Sleep(10);
+            }
+            catch (Exception ex)
+            {
+                Logger.Warn($"Control listener exception: {ex.Message}");
+                Thread.Sleep(100);
+            }
         }
     }
 
