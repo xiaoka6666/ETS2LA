@@ -1,44 +1,64 @@
 namespace ETS2LA.Settings.Global;
 
+using System.ComponentModel;
+
 public enum AccelerationResponseOption
 {
+    [Description("慢速")]
     Slow,
+    [Description("正常")]
     Normal,
+    [Description("快速")]
     Fast
 }
 
 public enum SteeringSensitivityOption
 {
+    [Description("慢速")]
     Slow,
+    [Description("正常")]
     Normal,
+    [Description("快速")]
     Fast
 }
 
 public enum FollowingDistanceOption
 {
+    [Description("近")]
     Near,
+    [Description("正常")]
     Normal,
+    [Description("远")]
     Far
 }
 
 public enum SetSpeedBehaviour
 {
+    [Description("限速")]
     SpeedLimit,
+    [Description("当前速度")]
     CurrentSpeed
 }
 
 public enum SpeedLimitWarning
 {
+    [Description("关闭")]
     Off,
+    [Description("视觉提醒")]
     Visual,
+    [Description("提示音")]
     Chime
 }
 
 public enum CollisionAvoidance
 {
+    [Description("关闭")]
     Off,
+    [Description("较晚")]
     Late,
+    [Description("中等")]
     Medium,
+    [Description("较早")]
     Early
 }
 

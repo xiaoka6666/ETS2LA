@@ -1,4 +1,4 @@
-﻿using ETS2LA.Shared;
+using ETS2LA.Shared;
 using ETS2LA.Backend.Events;
 using ETS2LA.Notifications;
 using ETS2LA.Logging;
@@ -147,8 +147,8 @@ public class GameTelemetry
             NotificationHandler.Current.SendNotification(new Notification
             {
                 Id = "GameTelemetry.MMFNotFound",
-                Title = "Game Telemetry",
-                Content = $"Couldn't connect to the game. Please open ETS2 or ATS and enable the SDK.",
+                Title = "游戏遥测",
+                Content = $"无法连接到游戏。请打开 ETS2 或 ATS 并启用 SDK。",
                 IsProgressIndeterminate = true,
             });
             Thread.Sleep(1000);

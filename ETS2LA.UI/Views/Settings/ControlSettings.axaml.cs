@@ -171,8 +171,8 @@ public class ControlItem : INotifyPropertyChanged
         NotificationHandler.Current.SendNotification(new Notification
         {
             Id = "ControlSettings.Binding",
-            Title = "Control Binding",
-            Content = $"Press a key, button or move an axis to bind '{Name}'",
+            Title = "控件绑定",
+            Content = $"请按下一个按键、按钮或移动一个轴来绑定「{Name}」",
             IsProgressIndeterminate = true,
             CloseAfter = 0.0f
         });
@@ -192,8 +192,8 @@ public class ControlItem : INotifyPropertyChanged
             NotificationHandler.Current.SendNotification(new Notification
             {
                 Id = "ControlSettings.SuccessfullyBound",
-                Title = "Control Bound",
-                Content = $"Successfully bound '{Name}' to {DeviceName} - {DeviceButton}",
+                Title = "控件已绑定",
+                Content = $"已成功将「{Name}」绑定到 {DeviceName} - {DeviceButton}",
                 Level = NotificationLevel.Success,
                 CloseAfter = 5.0f
             });
@@ -203,8 +203,8 @@ public class ControlItem : INotifyPropertyChanged
             NotificationHandler.Current.SendNotification(new Notification
             {
                 Id = "ControlSettings.BindingFailed",
-                Title = "Binding Cancelled",
-                Content = $"Binding for '{Name}' was cancelled or timed out.",
+                Title = "绑定已取消",
+                Content = $"「{Name}」的绑定已取消或超时。",
                 Level = NotificationLevel.Warning,
                 CloseAfter = 5.0f
             });

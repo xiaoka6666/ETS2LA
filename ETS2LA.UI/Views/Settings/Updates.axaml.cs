@@ -57,8 +57,8 @@ public partial class Updates : UserControl, INotifyPropertyChanged
         NotificationHandler.Current.SendNotification(new Notification
         {
             Id = "UpdateNotification",
-            Title = "Checking for Updates",
-            Content = "Please wait while we check for updates...",
+            Title = "正在检查更新",
+            Content = "请等待我们检查更新...",
             Level = NotificationLevel.Information,
             CloseAfter = 0,
             IsProgressIndeterminate = true
@@ -70,8 +70,8 @@ public partial class Updates : UserControl, INotifyPropertyChanged
                 NotificationHandler.Current.SendNotification(new Notification
                 {
                     Id = "UpdateNotification",
-                    Title = "Update Available",
-                    Content = $"A new version is available: {LatestUpdateInfo.TargetFullRelease.Version}",
+                    Title = "有可用更新",
+                    Content = $"有新版本可用：{LatestUpdateInfo.TargetFullRelease.Version}",
                     Level = NotificationLevel.Success,
                     CloseAfter = 5,
                     IsProgressIndeterminate = false
@@ -86,8 +86,8 @@ public partial class Updates : UserControl, INotifyPropertyChanged
                 NotificationHandler.Current.SendNotification(new Notification
                 {
                     Id = "UpdateNotification",
-                    Title = "No Update Available",
-                    Content = "You are using the latest version.",
+                    Title = "无可用更新",
+                    Content = "您正在使用最新版本。",
                     Level = NotificationLevel.Information,
                     CloseAfter = 5,
                     IsProgressIndeterminate = false
@@ -101,8 +101,8 @@ public partial class Updates : UserControl, INotifyPropertyChanged
         NotificationHandler.Current.SendNotification(new Notification
         {
             Id = "UpdateDownloadProgress",
-            Title = "Downloading Update",
-            Content = $"Download progress: {progress}%",
+            Title = "正在下载更新",
+            Content = $"下载进度：{progress}%",
             Level = NotificationLevel.Information,
             Progress = progress,
             CloseAfter = 0
@@ -118,8 +118,8 @@ public partial class Updates : UserControl, INotifyPropertyChanged
                 NotificationHandler.Current.SendNotification(new Notification
                 {
                     Id = "UpdateDownloadProgress",
-                    Title = "Downloading Update",
-                    Content = $"Starting download...",
+                    Title = "正在下载更新",
+                    Content = $"开始下载...",
                     Level = NotificationLevel.Information,
                     Progress = 0,
                     CloseAfter = 0

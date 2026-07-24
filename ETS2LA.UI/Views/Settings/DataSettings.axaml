@@ -10,23 +10,23 @@
 
             <StackPanel Spacing="10">
                 <Grid ColumnDefinitions="*, Auto">
-                    <TextBlock Text="Force Base Map Name" VerticalAlignment="Center" />
+                    <TextBlock Text="强制基础地图名称" VerticalAlignment="Center" />
                     <ToggleSwitch Grid.Column="1" IsChecked="{Binding ForceBaseMapName}" Classes="primary-toggle" AutomationProperties.Name="Force Base Map Name, so far only necessary for RusMap, requires restart" />
                 </Grid>
-                <TextBlock Text="Some mods implement additional maps like japan.mbd or russia.mbd. If you find your mods are not loading properly, try enabling this option. This is required for RusMap." FontSize="12" Classes="Description" />
+                <TextBlock Text="某些模组实现了额外地图，如 japan.mbd 或 russia.mbd。如果发现模组无法正常加载，请尝试启用此选项。RusMap 需要此项。" FontSize="12" Classes="Description" />
                 <StackPanel IsVisible="{Binding BaseMapNameNeedsRestart}">
-                    <TextBlock Text="Warning: You need to restart ETS2LA to apply this change." FontSize="12" Classes="Warning" />
+                    <TextBlock Text="警告：需要重启 ETS2LA 才能使此更改生效。" FontSize="12" Classes="Warning" />
                 </StackPanel>
             </StackPanel>
 
             <StackPanel Spacing="10">
                 <Grid ColumnDefinitions="*, Auto">
-                    <TextBlock Text="Force Map Load" VerticalAlignment="Center" />
+                    <TextBlock Text="强制加载地图" VerticalAlignment="Center" />
                     <ToggleSwitch Grid.Column="1" IsChecked="{Binding ForceMapLoad}" Classes="primary-toggle" AutomationProperties.Name="Force Map Load on game startup, requires restart" />
                 </Grid>
-                <TextBlock Text="Force ETS2LA to load the map on game startup. This can resolve issues where your game.log.txt file is not where ETS2LA expects it." FontSize="12" Classes="Description" />
+                <TextBlock Text="强制 ETS2LA 在游戏启动时加载地图。这可以解决 game.log.txt 文件不在 ETS2LA 预期位置的问题。" FontSize="12" Classes="Description" />
                 <StackPanel IsVisible="{Binding ForceMapLoadNeedsRestart}">
-                    <TextBlock Text="Warning: You need to restart ETS2LA to apply this change." FontSize="12" Classes="Warning" />
+                    <TextBlock Text="警告：需要重启 ETS2LA 才能使此更改生效。" FontSize="12" Classes="Warning" />
                 </StackPanel>
             </StackPanel>
 
@@ -34,8 +34,8 @@
 
             <StackPanel Spacing="10">
                 <StackPanel Spacing="3">
-                    <TextBlock Text="Data Fidelity" />
-                    <TextBlock Text="Adjust the level of detail of the game data we use. Higher values use more RAM, but include more information. All levels drive the same." FontSize="12" Classes="Description" />
+                    <TextBlock Text="数据保真度" />
+                    <TextBlock Text="调整游戏数据的细节级别。较高的值使用更多 RAM，但包含更多信息。所有级别驾驶体验相同。" FontSize="12" Classes="Description" />
                 </StackPanel>
                 <TabStrip ItemsSource="{Binding DataFidelityOptions}" 
                         SelectedIndex="{Binding SelectedDataFidelityOption}" 
@@ -57,34 +57,34 @@
                     </TabStrip.ItemTemplate>
                 </TabStrip>
                 <StackPanel Spacing="3" IsVisible="{Binding ShowRamWarning}">
-                    <TextBlock Text="You cannot use some data fidelity options due to insufficient RAM. High requires 16GB, Extreme requires 20GB." FontSize="12" Classes="Warning" />
+                    <TextBlock Text="由于 RAM 不足，您无法使用某些数据保真度选项。高需要 16GB，极致需要 20GB。" FontSize="12" Classes="Warning" />
                 </StackPanel>
 
                 <StackPanel Spacing="3" IsVisible="{Binding ShowLowInfo}">
-                    <TextBlock Text="This setting only loads roads and intersections visible on the in game map. It discards all other information." FontSize="12" />
+                    <TextBlock Text="此设置仅加载游戏中地图可见的道路和交叉口。它会丢弃所有其他信息。" FontSize="12" />
                 </StackPanel>
 
                 <StackPanel Spacing="3" IsVisible="{Binding ShowMediumInfo}">
-                    <TextBlock Text="This setting drops redundant information while maintaining most detail objects (such as signs). Doesn't include any roads / intersections not shown in the in game map." FontSize="12" />
+                    <TextBlock Text="此设置丢弃冗余信息，同时保留大多数细节对象（如标牌）。不包括游戏中地图未显示的任何道路/交叉口。" FontSize="12" />
                 </StackPanel>
 
                 <StackPanel Spacing="3" IsVisible="{Binding ShowHighInfo}">
-                    <TextBlock Text="This setting drops redundant information while maintaining most detail objects (such as signs). Includes all hidden and AI only roads." FontSize="12" />
+                    <TextBlock Text="此设置丢弃冗余信息，同时保留大多数细节对象（如标牌）。包括所有隐藏道路和 AI 专用道路。" FontSize="12" />
                 </StackPanel>
 
                 <StackPanel Spacing="3" IsVisible="{Binding ShowExtremeInfo}">
-                    <TextBlock Text="This setting includes all available data, most of which is redundant." FontSize="12" />
+                    <TextBlock Text="此设置包含所有可用数据，其中大部分是冗余的。" FontSize="12" />
                 </StackPanel>
 
                 <StackPanel Spacing="3" IsVisible="{Binding ShowExtremeWarning}">
-                    <TextBlock Text="Warning: Extreme uses significant amounts of RAM, expect over 10GB of usage." FontSize="12" Classes="Warning" />
+                    <TextBlock Text="警告：极致模式会消耗大量 RAM，预计使用超过 10GB。" FontSize="12" Classes="Warning" />
                 </StackPanel>
             </StackPanel>
 
             <StackPanel Spacing="10">
                 <StackPanel Spacing="3">
-                    <TextBlock Text="Curve Quality" />
-                    <TextBlock Text="Adjust the quality of the curves used for path planning and visualization. By default this matches the game." FontSize="12" Classes="Description" />
+                    <TextBlock Text="曲线质量" />
+                    <TextBlock Text="调整用于路径规划和可视化的曲线质量。默认情况下与游戏一致。" FontSize="12" Classes="Description" />
                 </StackPanel>
                 <TabStrip ItemsSource="{Binding CurveQualityOptions}" 
                         SelectedIndex="{Binding SelectedCurveQualityOption}" 

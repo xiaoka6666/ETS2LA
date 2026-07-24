@@ -1,4 +1,4 @@
-﻿// Much of this file is based on the Hexa.NET.ImGui example code. See the relevant example here:
+// Much of this file is based on the Hexa.NET.ImGui example code. See the relevant example here:
 // https://github.com/HexaEngine/Hexa.NET.ImGui/blob/main/Examples/ExampleGLFWOpenGL3/Program.cs
 
 using Hexa.NET.GLFW;
@@ -39,8 +39,8 @@ public class OverlayHandler
     public ControlDefinition Interact = new ControlDefinition
     {   
         Id = "ETS2LA.Overlay.Interact",
-        Name = "Overlay Interaction",
-        Description = "When this key is held, the overlay will receive mouse input and allow you to interact with it. NOTE: Interaction with items below the overlay is not possible during this time.",
+        Name = "叠加层交互",
+        Description = "按住此键时，叠加层将接收鼠标输入并允许您与之交互。注意：在此期间无法与叠加层下方的项目交互。",
         DefaultKeybind = "RightAlt",
         Type = ControlType.Boolean
     };
@@ -228,9 +228,9 @@ public class OverlayHandler
     {
         if (isInteracting)
         {
-            ImGui.Begin("Interaction Mode", ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoBackground);
+            ImGui.Begin("交互模式", ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoBackground);
             ImGui.SetWindowPos(new Vector2(OverlayWidth / 2 - 60, 10), ImGuiCond.Always);
-            ImGui.TextColored(new Vector4(0.5f, 0.5f, 0.5f, 1f), "Interaction Mode");
+            ImGui.TextColored(new Vector4(0.5f, 0.5f, 0.5f, 1f), "交互模式");
 
             ImGui.Spacing();
             try
@@ -245,7 +245,7 @@ public class OverlayHandler
         
                     if (ImGui.IsItemHovered())
                     {
-                        ImGui.SetTooltip("Click to " + (isOpen ? "hide" : "show") + " this window");
+                        ImGui.SetTooltip("点击" + (isOpen ? "隐藏" : "显示") + "此窗口");
                     }
                     if (ImGui.IsItemClicked())
                     {
@@ -365,7 +365,7 @@ public class OverlayHandler
         if (ImGui.BeginPopupContextWindow((byte*)0, ImGuiPopupFlags.MouseButtonRight))
         {
             window.RenderContextMenu();
-            if (ImGui.MenuItem("Close"))
+            if (ImGui.MenuItem("关闭"))
             {
                 window.IsWindowOpen = false;
             }

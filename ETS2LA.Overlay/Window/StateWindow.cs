@@ -29,7 +29,7 @@ class StateWindow : InternalWindow
     {
         Definition = new WindowDefinition
         {
-            Title = "State Info",
+            Title = "状态信息",
             Flags = ImGuiWindowFlags.AlwaysAutoResize,
         };
 
@@ -37,21 +37,21 @@ class StateWindow : InternalWindow
 
         Render = () =>
         {
-            DescriptionText("Desired Steering Level: "); ImGui.SameLine(); Text(ApplicationState.Current.DesiredSteeringLevel.ToString());
+            DescriptionText("目标转向级别："); ImGui.SameLine(); Text(ApplicationState.Current.DesiredSteeringLevel.ToString());
 
-            DescriptionText("Pause Steering Assist: "); ImGui.SameLine(); ColoredBoolean(ApplicationState.Current.PauseSteeringAssist, invert: true);
+            DescriptionText("暂停转向辅助："); ImGui.SameLine(); ColoredBoolean(ApplicationState.Current.PauseSteeringAssist, invert: true);
 
-            DescriptionText("Desired Longitudinal Level: "); ImGui.SameLine(); Text(ApplicationState.Current.DesiredLongitudinalLevel.ToString());
+            DescriptionText("目标纵向级别："); ImGui.SameLine(); Text(ApplicationState.Current.DesiredLongitudinalLevel.ToString());
 
-            DescriptionText("Pause Longitudinal Assist: "); ImGui.SameLine(); ColoredBoolean(ApplicationState.Current.PauseLongitudinalAssist, invert: true);
+            DescriptionText("暂停纵向辅助："); ImGui.SameLine(); ColoredBoolean(ApplicationState.Current.PauseLongitudinalAssist, invert: true);
 
             float speed = ApplicationState.Current.DesiredSpeed;
             Units displayUnits = ApplicationState.Current.DisplayUnits;
             float speedInUnits = UnitConversions.FromScientificUnits(UnitType.Speed, speed, displayUnits);
             string unitAbbreviation = UnitConversions.GetUnitAbbreviation(UnitType.Speed, displayUnits);
-            DescriptionText("Desired Speed: "); ImGui.SameLine(); Text($"{speed:F1} m/s ({speedInUnits:F1} in {unitAbbreviation})");
+            DescriptionText("目标速度："); ImGui.SameLine(); Text($"{speed:F1} m/s ({speedInUnits:F1} in {unitAbbreviation})");
 
-            DescriptionText("Display Units: "); ImGui.SameLine(); Text(ApplicationState.Current.DisplayUnits.ToString());
+            DescriptionText("显示单位："); ImGui.SameLine(); Text(ApplicationState.Current.DisplayUnits.ToString());
         };
     }
 }

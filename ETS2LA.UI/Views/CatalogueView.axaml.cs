@@ -195,12 +195,12 @@ public class NetworkPluginItem : INotifyPropertyChanged
     public string Name => _instance.Name;
     public string AutomationName => GetAutomationText();
     public string Description => _instance.Description;
-    public string Version => _latestVersion?.Version ?? "N/A";
-    public string SupportedVersion => _latestVersion?.AppVersion ?? "N/A";
+    public string Version => _latestVersion?.Version ?? "无";
+    public string SupportedVersion => _latestVersion?.AppVersion ?? "无";
     public string Author => _instance.Author;
     public string WebsiteUrl => _instance.WebsiteUrl;
     public string DependenciesCount => _latestVersion?.Dependencies.Count.ToString() ?? "0";
-    public string DependenciesTooltip => _latestVersion?.Dependencies.Count == 0 ? "No dependencies" : "Dependencies:\n" + string.Join("\n", _latestVersion?.Dependencies ?? new List<string>());
+    public string DependenciesTooltip => _latestVersion?.Dependencies.Count == 0 ? "无依赖项" : "依赖项：\n" + string.Join("\n", _latestVersion?.Dependencies ?? new List<string>());
     public string Initials => BuildInitials(Name);
     public bool IsPlugin => _instance.Tags.Contains(NetworkPluginTags.Plugin);
     public bool IsLibrary => _instance.Tags.Contains(NetworkPluginTags.Library);
@@ -244,7 +244,7 @@ public class NetworkPluginItem : INotifyPropertyChanged
 
     private string GetAutomationText()
     {
-        string text = _isInstalled ? "Installed plugin card," : "Uninstalled plugin card,";
+        string text = _isInstalled ? "已安装插件卡片，" : "未安装插件卡片，";
         text += $" {Name}";
         text += ", button";
         return text;

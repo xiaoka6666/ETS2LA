@@ -48,7 +48,7 @@ public class PluginApiClient
         NotificationHandler.Current.SendNotification(new Notification
         {
             Id = Guid.NewGuid().ToString(),
-            Title = "Plugin Installer",
+            Title = "插件安装器",
             Content = message,
             Level = level
         });
@@ -71,11 +71,11 @@ public class PluginApiClient
             var jsonResponse = await response.Content.ReadAsStringAsync();
             AvailablePlugins = JsonSerializer.Deserialize<List<NetworkPlugin>>(jsonResponse, jsonOptions) ?? new List<NetworkPlugin>();
 
-            Log($"Fetched {AvailablePlugins.Count} plugins from {apiServer.Value.BaseUrl}");
+            Log($"从 {apiServer.Value.BaseUrl} 获取了 {AvailablePlugins.Count} 个插件");
         }
         catch
         {
-            Log($"Failed to fetch available plugins. Please check your internet connection.", NotificationLevel.Danger);
+            Log($"获取可用插件失败。请检查您的网络连接。", NotificationLevel.Danger);
         }
     }
 
@@ -84,7 +84,7 @@ public class PluginApiClient
         var plugin = AvailablePlugins.FirstOrDefault(p => p.Id == pluginId);
         if (plugin == null)
         {
-            Log($"Plugin with ID {pluginId} not found in available plugins.", NotificationLevel.Warning);
+            Log($"在可用插件中未找到 ID 为 {pluginId} 的插件。", NotificationLevel.Warning);
             return false;
         }
 
@@ -100,7 +100,7 @@ public class PluginApiClient
 
         if (latestVersion == null || string.IsNullOrEmpty(latestVersion.Version))
         {
-            Log($"No valid versions found for plugin with ID {pluginId}.", NotificationLevel.Warning);
+            Log($"未找到 ID 为 {pluginId} 的插件的有效版本。", NotificationLevel.Warning);
             return false;
         }
 
@@ -112,7 +112,7 @@ public class PluginApiClient
         var plugin = AvailablePlugins.FirstOrDefault(p => p.Id == pluginId);
         if (plugin == null)
         {
-            Log($"Plugin with ID {pluginId} not found.", NotificationLevel.Warning);
+            Log($"未找到 ID 为 {pluginId} 的插件。", NotificationLevel.Warning);
             return false;   
         }
 
@@ -121,7 +121,7 @@ public class PluginApiClient
         var latestVersion = plugin.GetLatestCompatibleVersion(appVersion, currentOS);
         if (latestVersion == null)
         {
-            Log($"No valid versions found for plugin with ID {pluginId}.", NotificationLevel.Warning);
+            Log($"未找到 ID 为 {pluginId} 的插件的有效版本。", NotificationLevel.Warning);
             return false;
         }
 
@@ -133,7 +133,7 @@ public class PluginApiClient
 
         if (string.IsNullOrEmpty(downloadUrl))
         {
-            Log($"No download URL found for plugin with ID {pluginId} in region {currentRegion}.", NotificationLevel.Warning);
+            Log($"在 {currentRegion} 区域未找到 ID 为 {pluginId} 的插件的下载链接。", NotificationLevel.Warning);
             return false;
         }
 
@@ -146,14 +146,14 @@ public class PluginApiClient
                 {
                     if (!InstallPlugin(dependencyId))
                     {
-                        Log($"Failed to install dependency {dependencyId} for plugin {pluginId}.", NotificationLevel.Warning);
+                        Log($"安装插件 {pluginId} 的依赖 {dependencyId} 失败。", NotificationLevel.Warning);
                         allDependenciesInstalled = false;
                     }
                 }
             }
             if (!allDependenciesInstalled)
             {
-                Log($"Not all dependencies for plugin {pluginId} are installed.", NotificationLevel.Warning);
+                Log($"插件 {pluginId} 的依赖未全部安装。", NotificationLevel.Warning);
                 return false;
             }
         }
@@ -166,7 +166,7 @@ public class PluginApiClient
             var downloadResponse = downloadTask.Result;
             if (!downloadResponse.IsSuccessStatusCode)
             {
-                Log($"Failed to download plugin with ID {pluginId} from {downloadUrl}. Status code: {downloadResponse.StatusCode}", NotificationLevel.Warning);
+                Log($"从 {downloadUrl} 下载 ID 为 {pluginId} 的插件失败。状态码：{downloadResponse.StatusCode}", NotificationLevel.Warning);
                 return false;
             }
             using (var fs = new FileStream(tempFilePath, FileMode.Create, FileAccess.Write, FileShare.None))
@@ -201,7 +201,7 @@ public class PluginApiClient
 
         Events.Current.Publish<string>("ETS2LA.Plugins.Installed", pluginId);
         Events.Current.Publish<EventArgs>($"ETS2LA.Plugins.Installed.{pluginId}", EventArgs.Empty);
-        Log($"Successfully installed plugin {plugin.Name} ({plugin.Id}, {latestVersion.Version})", NotificationLevel.Success);
+        Log($"成功安装插件 {plugin.Name} ({plugin.Id}, {latestVersion.Version})", NotificationLevel.Success);
         return true;
     }
 
@@ -209,27 +209,27 @@ public class PluginApiClient
     {
         if (!PluginHasUpdateAvailable(pluginId))
         {
-            Log($"No update available for plugin with ID {pluginId}.", NotificationLevel.Information);
+            Log($"ID 为 {pluginId} 的插件没有可用更新。", NotificationLevel.Information);
             return false;
         }
 
         // Uninstall the current version first.
         if (!UninstallPlugin(pluginId, overrideDependencyCheck: true))
         {
-            Log($"Failed to uninstall current version of plugin with ID {pluginId}.", NotificationLevel.Warning);
+            Log($"卸载 ID 为 {pluginId} 的插件的当前版本失败。", NotificationLevel.Warning);
             return false;
         }
 
         // Then install the latest version.
         if (!InstallPlugin(pluginId))
         {
-            Log($"Failed to install latest version of plugin with ID {pluginId}.", NotificationLevel.Warning);
+            Log($"安装 ID 为 {pluginId} 的插件的最新版本失败。", NotificationLevel.Warning);
             return false;
         }
 
         Events.Current.Publish<string>("ETS2LA.Plugins.Updated", pluginId);
         Events.Current.Publish<EventArgs>($"ETS2LA.Plugins.Updated.{pluginId}", EventArgs.Empty);
-        Log($"Successfully updated plugin with ID {pluginId}.", NotificationLevel.Success);
+        Log($"成功更新 ID 为 {pluginId} 的插件。", NotificationLevel.Success);
         return true;
     }
 
@@ -238,7 +238,7 @@ public class PluginApiClient
         InstalledPlugin? installedPlugin = InstalledPluginManifest.Current.InstalledPlugins.FirstOrDefault(p => p.Id == pluginId);
         if (installedPlugin == null)
         {
-            Log($"Installed plugin with ID {pluginId} not found.", NotificationLevel.Warning);
+            Log($"未找到已安装的 ID 为 {pluginId} 的插件。", NotificationLevel.Warning);
             return false;
         }
 
@@ -250,7 +250,7 @@ public class PluginApiClient
             if (dependentPlugins.Any())
             {
                 string dependentPluginIds = string.Join(", ", dependentPlugins.Select(p => p.Id));
-                Log($"Cannot uninstall plugin with ID {pluginId} because the following installed plugins depend on it: {dependentPluginIds}", NotificationLevel.Warning);
+                Log($"无法卸载 ID 为 {pluginId} 的插件，因为以下已安装的插件依赖于它：{dependentPluginIds}", NotificationLevel.Warning);
                 return false;
             }
         }
@@ -266,7 +266,7 @@ public class PluginApiClient
         if (Directory.Exists(pluginPath)) Directory.Delete(pluginPath, true);
         else
         {
-            Log($"Apparent plugin directory {pluginPath} does not exist.", NotificationLevel.Warning);
+            Log($"插件目录 {pluginPath} 不存在。", NotificationLevel.Warning);
             return false;
         }
 
@@ -276,7 +276,7 @@ public class PluginApiClient
 
         Events.Current.Publish<string>("ETS2LA.Plugins.Uninstalled", pluginId);
         Events.Current.Publish<EventArgs>($"ETS2LA.Plugins.Uninstalled.{pluginId}", EventArgs.Empty);
-        Log($"Successfully uninstalled plugin with ID {pluginId}", NotificationLevel.Success);
+        Log($"成功卸载 ID 为 {pluginId} 的插件", NotificationLevel.Success);
         return true;
     }
 }

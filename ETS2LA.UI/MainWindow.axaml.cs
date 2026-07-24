@@ -103,8 +103,8 @@ public partial class MainWindow : AppWindow
         NotificationHandler.Current.SendNotification(new Notification
         {
             Id = "MainWindow.StayOnTopChanged",
-            Title = "Stay On Top",
-            Content = Topmost ? "Enabled" : "Disabled",
+            Title = "窗口置顶",
+            Content = Topmost ? "已启用" : "已禁用",
             CloseAfter = 2.0f,
             Level = Topmost ? NotificationLevel.Success : NotificationLevel.Danger
         });
@@ -120,8 +120,8 @@ public partial class MainWindow : AppWindow
         NotificationHandler.Current.SendNotification(new Notification
         {
             Id = "MainWindow.TransparencyChanged",
-            Title = "Transparency",
-            Content = this.Opacity < 1.0 ? "Enabled" : "Disabled",
+            Title = "透明度",
+            Content = this.Opacity < 1.0 ? "已启用" : "已禁用",
             CloseAfter = 2.0f,
             Level = this.Opacity < 1.0 ? NotificationLevel.Success : NotificationLevel.Danger
         });
@@ -144,7 +144,7 @@ public partial class MainWindow : AppWindow
         {
             Id = "MainWindow.Shutdown",
             Title = "ETS2LA",
-            Content = "Shutting down application & backend...",
+            Content = "正在关闭应用程序和后端服务...",
             CloseAfter = 20.0f
         });
         pluginService.Shutdown();
@@ -209,11 +209,11 @@ public partial class MainWindow : AppWindow
         {
             PageKind.Dashboard => dashboardView,
             PageKind.Manager => managerView,
-            PageKind.Visualization => CreatePlaceholder("Sorry", "This page is being remade and isn't available in this version. It will return in a future update."),
+            PageKind.Visualization => CreatePlaceholder("抱歉", "此页面正在重构中，当前版本暂不可用，将在未来更新中回归。"),
             PageKind.Catalogue => catalogueView,
-            PageKind.Performance => CreatePlaceholder("Performance", "This page hasn't been implemented yet, you can monitor performance using external tools."),
+            PageKind.Performance => CreatePlaceholder("性能", "此页面尚未实现，您可以使用外部工具监控性能。"),
             PageKind.Wiki => wikiView,
-            PageKind.Roadmap => CreatePlaceholder("Roadmap", "Please take a look at our public roadmap on GitHub. Navigate to the repository and click on the Projects tab at the top."),
+            PageKind.Roadmap => CreatePlaceholder("路线图", "请查看我们在 GitHub 上的公开路线图。前往仓库并点击顶部的 Projects 标签页。"),
             PageKind.Settings => settingsView,
             _ => dashboardView
         };

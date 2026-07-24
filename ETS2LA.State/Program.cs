@@ -1,4 +1,4 @@
-﻿using ETS2LA.Controls;
+using ETS2LA.Controls;
 using ETS2LA.Controls.Defaults;
 using ETS2LA.Backend.Events;
 using ETS2LA.Game.Telemetry;
@@ -223,8 +223,8 @@ public class ApplicationState
         NotificationHandler.Current.SendNotification(new Notification
         {
             Id = "ApplicationState.SpeedLimitChanged",
-            Title = "Speed limit changed",
-            Content = $"New limit {UnitConversions.FromScientificUnits(UnitType.Speed, newSpeedLimit, DisplayUnits):0} {UnitConversions.GetUnitAbbreviation(UnitType.Speed, DisplayUnits)}"
+            Title = "限速已变更",
+            Content = $"新限速 {UnitConversions.FromScientificUnits(UnitType.Speed, newSpeedLimit, DisplayUnits):0} {UnitConversions.GetUnitAbbreviation(UnitType.Speed, DisplayUnits)}"
         });
     }
 

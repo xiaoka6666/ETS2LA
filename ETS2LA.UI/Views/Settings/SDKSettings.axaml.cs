@@ -63,7 +63,7 @@ public partial class SDKSettings : UserControl
 
         var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
-            Title = "Select the game's install folder",
+            Title = "选择游戏的安装文件夹",
             AllowMultiple = false
         });
 
@@ -77,8 +77,8 @@ public partial class SDKSettings : UserControl
             NotificationHandler.Current.SendNotification(new Notification
             {
                 Id = "ETS2LA.UI.SDKSettings.AddGameFailed",
-                Title = "Could not add game",
-                Content = "No ETS2 or ATS executable was found in the selected folder. Please select the game's install folder, for example '.../steamapps/common/Euro Truck Simulator 2'.",
+                Title = "无法添加游戏",
+                Content = "在所选文件夹中未找到 ETS2 或 ATS 的可执行文件。请选择游戏的安装文件夹，例如「.../steamapps/common/Euro Truck Simulator 2」。",
                 Level = NotificationLevel.Danger
             });
             return;
@@ -134,8 +134,8 @@ public class GameItem : INotifyPropertyChanged
                 NotificationHandler.Current.SendNotification(new Notification
                 {
                     Id = "ETS2LA.UI.SDKSettings.Uninstall",
-                    Title = $"Uninstalled SDK for {Name}",
-                    Content = $"Successfully uninstalled SDK for {Name} at {Path}.",
+                    Title = $"已卸载 {Name} 的 SDK",
+                    Content = $"已在 {Path} 成功卸载 {Name} 的 SDK。",
                     Level = NotificationLevel.Success
                 });
             }
@@ -145,8 +145,8 @@ public class GameItem : INotifyPropertyChanged
                 NotificationHandler.Current.SendNotification(new Notification
                 {
                     Id = "ETS2LA.UI.SDKSettings.UninstallFailed",
-                    Title = $"Failed to uninstall SDK for {Name}",
-                    Content = $"An error occurred while uninstalling SDK for {Name} at {Path}. Please check the logs for more details.",
+                    Title = $"卸载 {Name} 的 SDK 失败",
+                    Content = $"在 {Path} 卸载 {Name} 的 SDK 时发生错误。请查看日志了解详情。",
                     Level = NotificationLevel.Danger
                 });
             }
@@ -159,8 +159,8 @@ public class GameItem : INotifyPropertyChanged
                 NotificationHandler.Current.SendNotification(new Notification
                 {
                     Id = "ETS2LA.UI.SDKSettings.Install",
-                    Title = $"Installed SDK for {Name}",
-                    Content = $"Successfully installed SDK for {Name} at {Path}.",
+                    Title = $"已安装 {Name} 的 SDK",
+                    Content = $"已在 {Path} 成功安装 {Name} 的 SDK。",
                     Level = NotificationLevel.Success
                 });
             }
@@ -170,8 +170,8 @@ public class GameItem : INotifyPropertyChanged
                 NotificationHandler.Current.SendNotification(new Notification
                 {
                     Id = "ETS2LA.UI.SDKSettings.InstallFailed",
-                    Title = $"Failed to install SDK for {Name}",
-                    Content = $"An error occurred while installing SDK for {Name} at {Path}. Please check the logs for more details.",
+                    Title = $"安装 {Name} 的 SDK 失败",
+                    Content = $"在 {Path} 安装 {Name} 的 SDK 时发生错误。请查看日志了解详情。",
                     Level = NotificationLevel.Danger
                 });
             }

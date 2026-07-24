@@ -119,8 +119,8 @@ public class MapData : Map
         NotificationHandler.Current.SendNotification(new Notification
         {
             Id = "ETS2LA.Game.Parsing",
-            Title = "Parsing Map Data",
-            Content = $"Parsing sector {index + 1} of {total}...",
+            Title = "正在解析地图数据",
+            Content = $"正在解析区块 {index + 1}/{total}...",
             IsProgressIndeterminate = false,
             Progress = ((index + 1) / (float)total) * 100f,
             CloseAfter = 0

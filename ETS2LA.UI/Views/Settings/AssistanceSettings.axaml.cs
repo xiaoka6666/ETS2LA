@@ -106,7 +106,7 @@ public partial class AssistanceSettingsPage : UserControl, INotifyPropertyChange
         }
     }
 
-    public string MaximumSpeedDisplay => AssistanceSettings.Current.MaximumSpeed > 0 ? $"{AssistanceSettings.Current.MaximumSpeed:F0} {UnitConversions.GetUnitAbbreviation(UnitType.Speed, StateSettingsHandler.Current.GetSettings().DisplayUnits)}" : "No Limit";
+    public string MaximumSpeedDisplay => AssistanceSettings.Current.MaximumSpeed > 0 ? $"{AssistanceSettings.Current.MaximumSpeed:F0} {UnitConversions.GetUnitAbbreviation(UnitType.Speed, StateSettingsHandler.Current.GetSettings().DisplayUnits)}" : "无限制";
     public float MaximumSpeed
     {
         get => AssistanceSettings.Current.MaximumSpeed;
@@ -146,7 +146,7 @@ public partial class AssistanceSettingsPage : UserControl, INotifyPropertyChange
         SelectedAccelerationOption = (int)AssistanceSettings.Current.AccelerationResponse;
         foreach (AccelerationResponseOption option in Enum.GetValues(typeof(AccelerationResponseOption)))
         {
-            AccelerationOptions.Add(new TabStripItemHandler(option.ToString()));
+            AccelerationOptions.Add(new TabStripItemHandler(option.GetDisplayName()));
         }
     }
 
@@ -155,7 +155,7 @@ public partial class AssistanceSettingsPage : UserControl, INotifyPropertyChange
         SelectedSteeringSensitivityOption = (int)AssistanceSettings.Current.SteeringSensitivity;
         foreach (SteeringSensitivityOption option in Enum.GetValues(typeof(SteeringSensitivityOption)))
         {
-            SteeringSensitivityOptions.Add(new TabStripItemHandler(option.ToString()));
+            SteeringSensitivityOptions.Add(new TabStripItemHandler(option.GetDisplayName()));
         }
     }
 
@@ -164,7 +164,7 @@ public partial class AssistanceSettingsPage : UserControl, INotifyPropertyChange
         SelectedFollowingDistanceOption = (int)AssistanceSettings.Current.FollowingDistance;
         foreach (FollowingDistanceOption option in Enum.GetValues(typeof(FollowingDistanceOption)))
         {
-            FollowingDistanceOptions.Add(new TabStripItemHandler(option.ToString()));
+            FollowingDistanceOptions.Add(new TabStripItemHandler(option.GetDisplayName()));
         }
     }
 
@@ -173,7 +173,7 @@ public partial class AssistanceSettingsPage : UserControl, INotifyPropertyChange
         SelectedSetSpeedBehaviourOption = (int)AssistanceSettings.Current.SetSpeedBehaviourOption;
         foreach (SetSpeedBehaviour option in Enum.GetValues(typeof(SetSpeedBehaviour)))
         {
-            SetSpeedBehaviourOptions.Add(new TabStripItemHandler(option.ToString()));
+            SetSpeedBehaviourOptions.Add(new TabStripItemHandler(option.GetDisplayName()));
         }
     }
 
@@ -182,7 +182,7 @@ public partial class AssistanceSettingsPage : UserControl, INotifyPropertyChange
         SelectedSpeedLimitWarningOption = (int)AssistanceSettings.Current.SpeedLimitWarningOption;
         foreach (SpeedLimitWarning option in Enum.GetValues(typeof(SpeedLimitWarning)))
         {
-            SpeedLimitWarningOptions.Add(new TabStripItemHandler(option.ToString()));
+            SpeedLimitWarningOptions.Add(new TabStripItemHandler(option.GetDisplayName()));
         }
     }
 
@@ -191,7 +191,7 @@ public partial class AssistanceSettingsPage : UserControl, INotifyPropertyChange
         SelectedCollisionAvoidanceOption = (int)AssistanceSettings.Current.CollisionAvoidanceOption;
         foreach (CollisionAvoidance option in Enum.GetValues(typeof(CollisionAvoidance)))
         {
-            CollisionAvoidanceOptions.Add(new TabStripItemHandler(option.ToString()));
+            CollisionAvoidanceOptions.Add(new TabStripItemHandler(option.GetDisplayName()));
         }
     }
 

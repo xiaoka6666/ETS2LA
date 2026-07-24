@@ -132,7 +132,7 @@ public partial class DisplaySettings : UserControl, INotifyPropertyChanged
         SelectedDisplayUnitOption = (int)StateSettingsHandler.Current.GetSettings().DisplayUnits;
         foreach (Units option in Enum.GetValues(typeof(Units)))
         {
-            DisplayUnitOptions.Add(new TabStripItemHandler(option.ToString()));
+            DisplayUnitOptions.Add(new TabStripItemHandler(option.GetDisplayName()));
         }
     }
 

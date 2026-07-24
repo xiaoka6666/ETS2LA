@@ -13,7 +13,7 @@ public partial class PluginUiWindow : Window
 
     public void LoadPage(PluginPage page, IPluginUi handler)
     {
-        Title = $"{page.Title} - Plugin";
+        Title = $"{page.Title} - 插件";
         if (this.FindControl<StackPanel>("Root") is { } root)
         {
             root.Children.Clear();

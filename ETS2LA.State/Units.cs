@@ -1,5 +1,8 @@
 namespace ETS2LA.State;
 
+using System.ComponentModel;
+using System.Reflection;
+
 public enum UnitType
 {
     Speed,
@@ -12,8 +15,11 @@ public enum UnitType
 
 public enum Units
 {
+    [Description("公制")]
     Metric,
+    [Description("英制")]
     Imperial,
+    [Description("科学")]
     Scientific
 }
 
@@ -175,44 +181,44 @@ public static class UnitConversions
                 switch (units)
                 {
                     case Units.Metric:
-                        return "kilometers per hour";
+                        return "公里/小时";
                     case Units.Imperial:
-                        return "miles per hour";
+                        return "英里/小时";
                     case Units.Scientific:
-                        return "meters per second";
+                        return "米/秒";
                 }
                 break;
             case UnitType.Distance:
                 switch (units)
                 {
                     case Units.Metric:
-                        return "meters";
+                        return "米";
                     case Units.Imperial:
-                        return "feet";
+                        return "英尺";
                     case Units.Scientific:
-                        return "meters";
+                        return "米";
                 }
                 break;
             case UnitType.Liquid:
                 switch (units)
                 {
                     case Units.Metric:
-                        return "liters";
+                        return "升";
                     case Units.Imperial:
-                        return "gallons";
+                        return "加仑";
                     case Units.Scientific:
-                        return "liters";
+                        return "升";
                 }
                 break;
             case UnitType.Weight:
                 switch (units)       
                 {
                     case Units.Metric:
-                        return "kilograms";
+                        return "千克";
                     case Units.Imperial:
-                        return "pounds";
+                        return "磅";
                     case Units.Scientific:
-                        return "kilograms";
+                        return "千克";
                 }
                 break;
             case UnitType.Temperature:
@@ -234,7 +240,7 @@ public static class UnitConversions
                     case Units.Imperial:
                         return "psi";
                     case Units.Scientific:
-                        return "Pascals";
+                        return "帕斯卡";
                 }
                 break;
         }
@@ -313,5 +319,21 @@ public static class UnitConversions
                 break;
         }
         throw new NotImplementedException($"Unit abbreviation for {type} in {units} is not implemented.");
+    }
+}
+
+/// <summary>
+/// 为枚举提供中文显示名称的扩展方法
+/// </summary>
+public static class EnumExtensions
+{
+    /// <summary>
+    /// 获取枚举值的显示名称（优先读取 Description 特性，否则返回枚举名称）
+    /// </summary>
+    public static string GetDisplayName(this Enum value)
+    {
+        var field = value.GetType().GetField(value.ToString());
+        var attr = field?.GetCustomAttribute<DescriptionAttribute>();
+        return attr?.Description ?? value.ToString();
     }
 }

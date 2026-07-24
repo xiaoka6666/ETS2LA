@@ -180,7 +180,7 @@ public class PluginItem : INotifyPropertyChanged
     public string Author => _instance.Info.AuthorName;
     public string AuthorLink => _instance.Info.AuthorWebsite;
     public string DependenciesCount => _instance.Info.Dependencies.Count.ToString();
-    public string DependenciesTooltip => _instance.Info.Dependencies.Count == 0 ? "No dependencies" : "Dependencies:\n" + string.Join("\n", _instance.Info.Dependencies);
+    public string DependenciesTooltip => _instance.Info.Dependencies.Count == 0 ? "无依赖项" : "依赖项：\n" + string.Join("\n", _instance.Info.Dependencies);
     public string Initials => BuildInitials(Name);
 
     public bool IsEnabled
@@ -225,7 +225,7 @@ public class PluginItem : INotifyPropertyChanged
 
     private string GetAutomationText()
     {
-        string text = _isEnabled ? "Enabled plugin card," : "Disabled plugin card,";
+        string text = _isEnabled ? "已启用插件卡片，" : "已禁用插件卡片，";
         text += $" {Name}";
         text += ", button";
         return text;

@@ -14,16 +14,16 @@ public class OnboardingPart2
 
     public Tutorial Create()
     {
-        return new Tutorial("OnboardingPart2", "Onboarding from when the catalogue plugins were installed.", "ETS2LA", new List<TutorialSection>
+        return new Tutorial("入门引导第二部分", "从目录插件安装完成后的引导。", "ETS2LA", new List<TutorialSection>
         {
             new TutorialSection
             {
-                Title = "Introduction to the User Interface",
+                Title = "用户界面介绍",
                 Actions = new List<TutorialAction>
                 {
                     new ShowMessageAction
                     {
-                        Message = "Great!\nLet's go to the settings next.",
+                        Message = "很好！\n接下来让我们去设置页面。",
                         ScreenPositionCallback = () =>
                         {
                             var position = ETS2LAWindowLocation();
@@ -37,7 +37,7 @@ public class OnboardingPart2
                     },
                     new ShowMessageAction
                     {
-                        Message = "Let's check the controls.",
+                        Message = "让我们检查控件设置。",
                         ScreenPositionCallback = () =>
                         {
                             var position = ETS2LAWindowLocation();
@@ -58,7 +58,7 @@ public class OnboardingPart2
                     },
                     new ShowMessageAction
                     {
-                        Message = "You can see all of ETS2LA's controls here. We've also opened the 'State Info' window so you can see your current settings.\nTry and press on 'SET' to toggle the ACC.",
+                        Message = "您可以在这里看到 ETS2LA 的所有控件。我们还打开了「状态信息」窗口，方便您查看当前设置。\n尝试按下「SET」键来切换 ACC。",
                         ScreenPositionCallback = () =>
                         {
                             var position = ETS2LAWindowLocation();
@@ -72,7 +72,7 @@ public class OnboardingPart2
                     },
                     new ShowMessageAction
                     {
-                        Message = "You can see all of ETS2LA's controls here. We've also opened the 'State Info' window so you can see your current settings.\nYou can also use 'ASSIST' to toggle between steering modes.",
+                        Message = "您可以在这里看到 ETS2LA 的所有控件。我们还打开了「状态信息」窗口，方便您查看当前设置。\n您也可以使用「ASSIST」键在转向模式间切换。",
                         ScreenPositionCallback = () =>
                         {
                             var position = ETS2LAWindowLocation();
@@ -86,7 +86,7 @@ public class OnboardingPart2
                     },
                     new ShowMessageAction
                     {
-                        Message = "Great!\nLet's go to the plugin manager page.",
+                        Message = "很好！\n让我们去插件管理页面。",
                         ScreenPositionCallback = () =>
                         {
                             var position = ETS2LAWindowLocation();
@@ -100,7 +100,7 @@ public class OnboardingPart2
                     },
                     new ShowMessageAction
                     {
-                        Message = "Here you see all of your installed plugins. To start off with, enable the 'Lane Assist' and 'Adaptive Cruise Control' plugins.",
+                        Message = "这里显示您已安装的所有插件。首先，请启用「车道辅助」和「自适应巡航控制」插件。",
                         ScreenPositionCallback = () =>
                         {
                             var position = ETS2LAWindowLocation();
@@ -114,7 +114,7 @@ public class OnboardingPart2
                     },
                     new ShowMessageWaitNextAction
                     {
-                        Message = "That's it for our onboarding. If you're left with questions check our Youtube channel and the Discord for more details.\nYou can find all links in the dashboard page.",
+                        Message = "引导到此结束。如果您还有疑问，请查看我们的 YouTube 频道和 Discord 了解更多详情。\n您可以在仪表盘页面找到所有链接。",
                         ScreenPositionCallback = () =>
                         {
                             var position = ETS2LAWindowLocation();
@@ -124,8 +124,8 @@ public class OnboardingPart2
                     },
                     new SendNotificationAction
                     {
-                        Title = "Tutorial Finished",
-                        Message = "Welcome to ETS2LA!",
+                        Title = "教程已完成",
+                        Message = "欢迎使用 ETS2LA！",
                         Level = Notifications.NotificationLevel.Success,
                         CloseAfter = 5f
                     },
