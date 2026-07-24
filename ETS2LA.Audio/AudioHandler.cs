@@ -147,6 +147,13 @@ public class AudioHandler
     private async Task PlaySound(AudioJob job, CancellationToken token)
     {
         if (token.IsCancellationRequested) return;
+
+        if (outputDevice == null)
+        {
+            Logger.Error("Audio output device not initialized.");
+            return;
+        }
+
         Logger.Info($"Playing sound: {job.Filename}");
 
         using var stream = File.OpenRead(job.Filename);

@@ -1,4 +1,4 @@
-﻿using Spectre.Console;
+using Spectre.Console;
 using System.Runtime.CompilerServices;
 using System.IO;
 
@@ -65,7 +65,7 @@ public static class Logger
         string color, 
         string filePath, 
         int lineNumber, 
-        Exception ex = null
+        Exception? ex = null
     )
     {
         // overlay + log file want plain text

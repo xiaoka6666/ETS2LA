@@ -281,8 +281,8 @@ public class SDL3ControlsBackend : IControlsBackend
 
                 if (type == (uint)SDLEventType.JoystickButtonDown)
                 {
-                    InputDeviceInfo info = _deviceInfos.ContainsKey(ev.Jbutton.Which) ? _deviceInfos[ev.Jbutton.Which] : default;
-                    if (info.Id == null)
+                    InputDeviceInfo? info = _deviceInfos.ContainsKey(ev.Jbutton.Which) ? _deviceInfos[ev.Jbutton.Which] : null;
+                    if (info == null)
                     {
                         Logger.Warn($"Received input from unknown joystick with instance ID {ev.Jbutton.Which}.");
                         continue;
@@ -294,8 +294,8 @@ public class SDL3ControlsBackend : IControlsBackend
 
                 if (type == (uint)SDLEventType.JoystickHatMotion)
                 {
-                    InputDeviceInfo info = _deviceInfos.ContainsKey(ev.Jhat.Which) ? _deviceInfos[ev.Jhat.Which] : default;
-                    if (info.Id == null)
+                    InputDeviceInfo? info = _deviceInfos.ContainsKey(ev.Jhat.Which) ? _deviceInfos[ev.Jhat.Which] : null;
+                    if (info == null)
                     {
                         Logger.Warn($"Received input from unknown joystick with instance ID {ev.Jhat.Which}.");
                         continue;
@@ -307,8 +307,8 @@ public class SDL3ControlsBackend : IControlsBackend
 
                 if (type == (uint)SDLEventType.JoystickAxisMotion)
                 {
-                    InputDeviceInfo info = _deviceInfos.ContainsKey(ev.Jaxis.Which) ? _deviceInfos[ev.Jaxis.Which] : default;
-                    if (info.Id == null)
+                    InputDeviceInfo? info = _deviceInfos.ContainsKey(ev.Jaxis.Which) ? _deviceInfos[ev.Jaxis.Which] : null;
+                    if (info == null)
                     {
                         Logger.Warn($"Received input from unknown joystick with instance ID {ev.Jaxis.Which}.");
                         continue;
@@ -324,8 +324,8 @@ public class SDL3ControlsBackend : IControlsBackend
 
                 if (type == (uint)SDLEventType.JoystickBallMotion)
                 {
-                    InputDeviceInfo info = _deviceInfos.ContainsKey(ev.Jball.Which) ? _deviceInfos[ev.Jball.Which] : default;
-                    if (info.Id == null)
+                    InputDeviceInfo? info = _deviceInfos.ContainsKey(ev.Jball.Which) ? _deviceInfos[ev.Jball.Which] : null;
+                    if (info == null)
                     {
                         Logger.Warn($"Received input from unknown joystick with instance ID {ev.Jball.Which}.");
                         continue;

@@ -33,6 +33,9 @@ public class ControlsBackend : IControlsBackend
 #endif
         }
 
+        if (_backend == null)
+            throw new PlatformNotSupportedException("Controls backend is not available on this platform.");
+
         _backend.ControlAdded += (s, e) => ControlAdded?.Invoke(this, e);
         _backend.ControlRemoved += (s, e) => ControlRemoved?.Invoke(this, e);
     }
