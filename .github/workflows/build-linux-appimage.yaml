@@ -52,6 +52,26 @@ jobs:
         run: |
           ./publish.sh
 
+      - name: Find executable
+        id: find-exe
+        run: |
+          echo "Contents of ./publish:"
+          ls -la ./publish/
+          # Look for the main executable: ELF binary without .so extension
+          EXE=$(find ./publish -maxdepth 1 -type f -executable -name 'ETS2LA' ! -name '*.so' | head -1)
+          if [ -z "$EXE" ]; then
+            EXE=$(find ./publish -maxdepth 1 -type f -executable ! -name '*.so' ! -name '*.dll' | head -1)
+          fi
+          if [ -n "$EXE" ]; then
+            EXE_NAME=$(basename "$EXE")
+            echo "Found executable: $EXE_NAME"
+            echo "mainExe=$EXE_NAME" >> "$GITHUB_OUTPUT"
+          else
+            echo "No executable found in ./publish!"
+            find ./publish -maxdepth 2 -type f | head -50
+            exit 1
+          fi
+
       - name: Install vpk tool
         run: |
           dotnet tool install -g vpk
@@ -67,7 +87,7 @@ jobs:
             --packId ETS2LA \
             --packVersion ${{ steps.get-version.outputs.version }} \
             --packDir ./publish \
-            --mainExe ETS2LA \
+            --mainExe ${{ steps.find-exe.outputs.mainExe }} \
             --icon ./ETS2LA.UI/Assets/logo.ico \
             --packTitle "ETS2LA" \
             --releaseNotes ./ETS2LA/ReleaseNotes.md
